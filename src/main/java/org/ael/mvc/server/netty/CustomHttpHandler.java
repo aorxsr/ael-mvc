@@ -7,21 +7,16 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.concurrent.EventExecutor;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.http.*;
-import org.ael.mvc.http.body.Body;
 import org.ael.mvc.http.body.BodyWrite;
 import org.ael.mvc.http.body.ViewBody;
 import org.ael.mvc.route.RouteHandler;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -42,7 +37,7 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
         future.thenApplyAsync(req -> initRequest(req, ctx), executor)
                 .thenApplyAsync(this::execute, executor)
                 .thenApplyAsync(this::buildResponse, executor)
-                .exceptionally(this::exectionHandler)
+                .exceptionally(this::executeHandler)
                 .thenAcceptAsync(res -> writeResponse(ctx, future, res), ctx.channel().eventLoop());
     }
 
@@ -51,7 +46,7 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
         future.complete(null);
     }
 
-    private FullHttpResponse exectionHandler(Throwable throwable) {
+    private FullHttpResponse executeHandler(Throwable throwable) {
         throwable.printStackTrace();
         return new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(throwable.getMessage().getBytes()));
     }
