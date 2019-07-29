@@ -21,9 +21,10 @@ public class ServerTest {
 
 	@Test
 	public void test1() {
-		Ael ael = new Ael();
-		ael.get("/", wc -> wc.getResponse().text("我叫付飞虎!"));
-		ael.start();
+		new Ael()
+				.get("/", handler -> handler.getResponse().text("ABCD"))
+				.post("/post", handler -> handler.getResponse().json("{\"a\":\"aaa\"}"))
+				.start();
 	}
 
 }

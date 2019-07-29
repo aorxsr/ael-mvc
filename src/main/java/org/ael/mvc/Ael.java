@@ -32,4 +32,9 @@ public class Ael {
 		return this;
 	}
 
+	public Ael post(String url, RouteFunctionHandler handler) {
+		routeHandler.addHandler("POST", url, handler);
+		return this;
+	}
+
 }
