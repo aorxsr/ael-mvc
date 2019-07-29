@@ -9,7 +9,6 @@
     <version>1.0-SNAPSHOT</version>
 
     <dependencies>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -20,6 +19,19 @@
             <artifactId>netty-all</artifactId>
             <version>4.1.34.Final</version>
         </dependency>
+
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>4.5.8</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.zhangyingwei</groupId>
+            <artifactId>Solid</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
