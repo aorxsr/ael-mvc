@@ -12,13 +12,13 @@ public interface Session {
 	String getIp();
 	Session setIp(String ip);
 
-	Session setAttribute(String attribute);
-	Session getAttribute(String name);
+	Session setAttribute(String name,Object value);
+	Object getAttribute(String name);
 
 	long getExpired();
-	Session setExpired();
+	Session setExpired(long expired);
 
 	long getCreated();
-	Session setCreated();
+	Session setCreated(long created);
 
 }

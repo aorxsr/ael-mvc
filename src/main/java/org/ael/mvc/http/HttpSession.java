@@ -1,60 +1,72 @@
 package org.ael.mvc.http;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @Author: aorxsr
  * @Date: 2019/7/29 18:05
  */
 public class HttpSession implements Session {
 
-	private String id;
+    private String id;
+    private long created = -1;
+    private long expired = -1;
 
-	@Override
-	public String getId() {
-		return null;
-	}
+    private Map<String, Object> attributes = new HashMap<>(8);
 
-	@Override
-	public Session setId(String id) {
-		return null;
-	}
+    @Override
+    public String getId() {
+        return id;
+    }
 
-	@Override
-	public String getIp() {
-		return null;
-	}
+    @Override
+    public Session setId(String id) {
+        this.id = id;
+        return this;
+    }
 
-	@Override
-	public Session setIp(String ip) {
-		return null;
-	}
+    @Override
+    public String getIp() {
+        return null;
+    }
 
-	@Override
-	public Session setAttribute(String attribute) {
-		return null;
-	}
+    @Override
+    public Session setIp(String ip) {
+        return null;
+    }
 
-	@Override
-	public Session getAttribute(String name) {
-		return null;
-	}
+    @Override
+    public Session setAttribute(String name, Object value) {
+        attributes.put(name, attributes);
+        return this;
+    }
 
-	@Override
-	public long getExpired() {
-		return 0;
-	}
+    @Override
+    public Object getAttribute(String name) {
+        return attributes.get(name);
+    }
 
-	@Override
-	public Session setExpired() {
-		return null;
-	}
+    @Override
+    public long getExpired() {
+        return expired;
+    }
 
-	@Override
-	public long getCreated() {
-		return 0;
-	}
+    @Override
+    public Session setExpired(long expired) {
+        this.expired = expired;
+        return this;
+    }
 
-	@Override
-	public Session setCreated() {
-		return null;
-	}
+    @Override
+    public long getCreated() {
+        return created;
+    }
+
+    @Override
+    public Session setCreated(long created) {
+        this.created = created;
+        return this;
+    }
+
 }

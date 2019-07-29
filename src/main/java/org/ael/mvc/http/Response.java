@@ -6,6 +6,7 @@ import org.ael.mvc.http.body.StringBody;
 import org.ael.mvc.http.body.ViewBody;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @Author: aorxsr
@@ -23,6 +24,14 @@ public interface Response {
 
 	String getContentType();
 	void setContentType(String value);
+
+	/* cookie */
+	Cookie getCookie(String name);
+	Set<Cookie> getCookies();
+	Cookie setCookie(Cookie cookie);
+	Cookie setCookie(String name, String value);
+
+	Set<io.netty.handler.codec.http.cookie.Cookie> getNettyCookies();
 
 	/*  default impl */
 

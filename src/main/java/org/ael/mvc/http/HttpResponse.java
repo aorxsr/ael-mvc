@@ -1,10 +1,14 @@
 package org.ael.mvc.http;
 
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.http.body.Body;
 import org.ael.mvc.http.body.EmptyBody;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -13,62 +17,110 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HttpResponse implements Response {
 
-	private Body body;
+    private Body body;
 
-	private int status = 200;
-	private Map<String, String> headers = new ConcurrentHashMap<>();
+    private int status = 200;
+    private Map<String, String> headers = new ConcurrentHashMap<>();
+    private Set<io.netty.handler.codec.http.cookie.Cookie> nettyCookies = new HashSet<>();
 
-	@Override
-	public int getStatus() {
-		return status;
-	}
+    private Set<Cookie> cookies = new HashSet<>();
 
-	@Override
-	public void setStatus(int status) {
-		this.status = status;
-	}
+    @Override
+    public int getStatus() {
+        return status;
+    }
 
-	@Override
-	public Map<String, String> getHeaders() {
-		return headers;
-	}
+    @Override
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
-	@Override
-	public String getHeader(String key) {
-		return headers.get(key);
-	}
+    @Override
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
 
-	@Override
-	public void addHeader(String key, String value) {
-		headers.put(key, value);
-	}
+    @Override
+    public String getHeader(String key) {
+        return headers.get(key);
+    }
 
-	@Override
-	public void removeHeader(String key) {
-		headers.remove(key);
-	}
+    @Override
+    public void addHeader(String key, String value) {
+        headers.put(key, value);
+    }
 
-	@Override
-	public String getContentType() {
-		return headers.get(HttpConstant.CONTENT_TYPE);
-	}
+    @Override
+    public void removeHeader(String key) {
+        headers.remove(key);
+    }
 
-	@Override
-	public void setContentType(String value) {
-		headers.put(HttpConstant.CONTENT_TYPE, value);
-	}
+    @Override
+    public String getContentType() {
+        return headers.get(HttpConstant.CONTENT_TYPE);
+    }
 
-	@Override
-	public void write(Body body) {
-		this.body = body;
-	}
+    @Override
+    public void setContentType(String value) {
+        headers.put(HttpConstant.CONTENT_TYPE, value);
+    }
 
-	@Override
-	public Body getBody() {
-		if (null == body) {
-			return EmptyBody.of();
-		}
-		return body;
-	}
+    @Override
+    public Cookie getCookie(String name) {
+        Optional<Cookie> cookie = cookies.stream().filter(coo -> coo.getName().equals(name)).findFirst();
+        return cookie.isPresent() ? cookie.get() : null;
+    }
+
+    @Override
+    public Set<Cookie> getCookies() {
+        return cookies;
+    }
+
+    @Override
+    public Cookie setCookie(Cookie cookie) {
+        cookies.add(cookie);
+        return cookie;
+    }
+
+    @Override
+    public Cookie setCookie(String name, String value) {
+        Cookie cookie = new Cookie();
+        cookie.setName(name);
+        cookie.setValue(value);
+        cookies.add(cookie);
+        return cookie;
+    }
+
+    @Override
+    public Set<io.netty.handler.codec.http.cookie.Cookie> getNettyCookies() {
+        if (cookies.size() == nettyCookies.size()) {
+            return nettyCookies;
+        } else {
+            nettyCookies.clear();
+            cookies.forEach(cookie -> {
+                io.netty.handler.codec.http.cookie.Cookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
+                nettyCookie.setDomain(cookie.getDomain());
+                nettyCookie.setHttpOnly(cookie.isHttpOnly());
+                nettyCookie.setMaxAge(cookie.getMaxAge());
+                nettyCookie.setPath(cookie.getPath());
+                nettyCookie.setSecure(cookie.isSecure());
+                nettyCookies.add(nettyCookie);
+            });
+            return nettyCookies;
+        }
+    }
+
+    @Override
+    public void write(Body body) {
+        this.body = body;
+    }
+
+    @Override
+    public Body getBody() {
+        if (null == body) {
+            return EmptyBody.of();
+        }
+        return body;
+    }
 
 }

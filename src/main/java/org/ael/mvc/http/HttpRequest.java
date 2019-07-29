@@ -30,7 +30,7 @@ import static org.ael.mvc.constant.HttpConstant.HOST;
  */
 public class HttpRequest implements Request {
 
-	private final static SessionHandler SESSION_HANDLER = new SessionHandler();
+	private final static SessionHandler SESSION_HANDLER = new SessionHandler(WebContent.ael.getSessionManager());
 
 	private final static String GZIP = "gzip";
 	private final static String WEN = "?";
@@ -47,7 +47,7 @@ public class HttpRequest implements Request {
 
 	private Map<String, String> headers = new HashMap<>(8);
 	private Map<String, Object> parameters = new HashMap<>(8);
-	private Set<Cookie> cookies = new HashSet<>(8);
+	private Map<String, Cookie> cookies = new HashMap<>(8);
 
 	private io.netty.handler.codec.http.HttpRequest nettyRequest;
 	private Queue<HttpContent> contents = new LinkedList<>();
@@ -82,7 +82,7 @@ public class HttpRequest implements Request {
 		// cookie init
 		String cookieString = headers.get(HttpConstant.COOKIE);
 		if (!StringUtil.isNullOrEmpty(cookieString)) {
-			ServerCookieDecoder.LAX.decode(cookieString).forEach(cookie -> cookies.add(new Cookie(cookie.name(), cookie.value(), cookie.maxAge(), cookie.domain(), cookie.path(),
+			ServerCookieDecoder.LAX.decode(cookieString).forEach(cookie -> cookies.put(cookie.name(), new Cookie(cookie.name(), cookie.value(), cookie.maxAge(), cookie.domain(), cookie.path(),
 					cookie.isSecure(), cookie.isHttpOnly())));
 		}
 		// parameter init
@@ -95,7 +95,7 @@ public class HttpRequest implements Request {
 		}
 
 		// session
-		session = SESSION_HANDLER.getSession(getCookieValue(HttpConstant.DEFAULT_SESSION_KEY));
+		session = SESSION_HANDLER.getSession(getCookieValue(HttpConstant.DEFAULT_SESSION_KEY), remoteAddress);
 
 
 		if (HttpMethod.GET.name().equalsIgnoreCase(method)) {
@@ -165,17 +165,18 @@ public class HttpRequest implements Request {
 
 	@Override
 	public Session getSession() {
-		return null;
+		return session;
 	}
 
 	@Override
 	public Map<String, Cookie> cookies() {
-		return null;
+		return cookies;
 	}
 
 	@Override
 	public Request setCookie(Cookie cookie) {
-		return null;
+		cookies.put(cookie.getName(), cookie);
+		return this;
 	}
 
 	@Override

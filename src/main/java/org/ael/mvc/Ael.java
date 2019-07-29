@@ -3,6 +3,7 @@ package org.ael.mvc;
 import lombok.Getter;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.http.session.SessionHandler;
+import org.ael.mvc.http.session.SessionManager;
 import org.ael.mvc.route.RouteFunctionHandler;
 import org.ael.mvc.route.RouteHandler;
 import org.ael.mvc.server.Server;
@@ -20,7 +21,9 @@ public class Ael {
 	@Getter
 	private RouteHandler routeHandler = new RouteHandler();
 	@Getter
-	private SessionHandler sessionHandler = new SessionHandler(this);
+	private SessionManager sessionManager = new SessionManager();
+	@Getter
+	private SessionHandler sessionHandler = new SessionHandler(sessionManager);
 
 	public Ael start() {
 		server.start(this);

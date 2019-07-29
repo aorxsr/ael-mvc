@@ -9,7 +9,10 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.ael.mvc.Ael;
 import org.ael.mvc.http.WebContent;
+import org.ael.mvc.http.session.SessionClearHandler;
 import org.ael.mvc.server.Server;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: aorxsr
@@ -30,6 +33,7 @@ public class NettyServer implements Server {
 
 	@Override
 	public void start(Ael ael) {
+		this.ael = ael;
 		init();
 
 		WebContent.setAel(ael);
@@ -61,7 +65,7 @@ public class NettyServer implements Server {
 		work = new NioEventLoopGroup();
 
 		scheduleEventLoop = new DefaultEventLoop();
-		scheduleEventLoop.schedule()
+		scheduleEventLoop.scheduleAtFixedRate(new SessionClearHandler(ael.getSessionHandler().getSessionManager()), 1000, 1000, TimeUnit.MILLISECONDS);
 
 		serverBootstrap = new ServerBootstrap();
 		// 初始化配置

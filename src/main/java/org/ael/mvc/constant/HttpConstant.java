@@ -1,5 +1,7 @@
 package org.ael.mvc.constant;
 
+import io.netty.util.AsciiString;
+
 /**
  * @Author: aorxsr
  * @Date: 2019/7/29 13:37
@@ -13,6 +15,8 @@ public interface HttpConstant {
 	String HOST                = "Host";
 
 	String DEFAULT_SESSION_KEY = "SESSION";
+
+	AsciiString SET_COOKIE       = AsciiString.cached("Set-Cookie");
 
 	/*****response********/
 

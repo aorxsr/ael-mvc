@@ -1,5 +1,6 @@
 package org.ael.mvc;
 
+import org.ael.mvc.http.Response;
 import org.ael.mvc.server.Server;
 import org.ael.mvc.server.netty.NettyServer;
 import org.junit.Test;
@@ -22,7 +23,14 @@ public class ServerTest {
 	@Test
 	public void test1() {
 		new Ael()
-				.get("/", handler -> handler.getResponse().text("ABCD"))
+				.get("/", handler -> {
+					handler.getResponse().text("ABCD");
+
+					Response response = handler.getResponse();
+
+					response.setCookie("cookieTest", "ffh");
+
+				})
 				.post("/post", handler -> handler.getResponse().json("{\"a\":\"aaa\"}"))
 				.start();
 	}
