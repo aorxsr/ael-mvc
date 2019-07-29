@@ -4,19 +4,25 @@ package org.ael.mvc.constant;
  * @Author: aorxsr
  * @Date: 2019/7/29 13:37
  */
-public class HttpConstant {
+public interface HttpConstant {
 
-	public final static String ACCEPT      = "Accept";
+	String ACCEPT              = "Accept";
+	String USER_AGENT          = "User-Agent";
+	String ACCEPT_ENCODING     = "Accept-Encoding";
+	String COOKIE              = "Cookie";
+	String HOST                = "Host";
+
+	String DEFAULT_SESSION_KEY = "SESSION";
 
 	/*****response********/
 
-	public final static String CONTENTTYPE = "Content-Type";
-	public final static String DATE        = "Date";
+	String CONTENT_TYPE = "Content-Type";
+	String DATE        = "Date";
 
-	public final static String TEXT_PLAIN   = "text/plain";
-	public final static String TEXT_XML     = "text/xml";
-	public final static String TEXT_HTML    = "text/html";
-	public final static String APPLICATION_JSON = "application/json";
+	String TEXT_PLAIN   = "text/plain";
+	String TEXT_XML     = "text/xml";
+	String TEXT_HTML    = "text/html";
+	String APPLICATION_JSON = "application/json";
 
 
 

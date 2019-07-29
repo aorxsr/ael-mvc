@@ -3,7 +3,6 @@ package org.ael.mvc.http;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.http.body.Body;
 import org.ael.mvc.http.body.EmptyBody;
-import sun.invoke.empty.Empty;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,12 +50,12 @@ public class HttpResponse implements Response {
 
 	@Override
 	public String getContentType() {
-		return headers.get(HttpConstant.CONTENTTYPE);
+		return headers.get(HttpConstant.CONTENT_TYPE);
 	}
 
 	@Override
 	public void setContentType(String value) {
-		headers.put(HttpConstant.CONTENTTYPE, value);
+		headers.put(HttpConstant.CONTENT_TYPE, value);
 	}
 
 	@Override
