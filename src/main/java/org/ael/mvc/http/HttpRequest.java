@@ -2,13 +2,17 @@ package org.ael.mvc.http;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.var;
 import org.ael.mvc.Environment;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
+import org.ael.mvc.http.session.SessionHandler;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,14 +30,20 @@ import static org.ael.mvc.constant.HttpConstant.HOST;
  */
 public class HttpRequest implements Request {
 
+	private final static SessionHandler SESSION_HANDLER = new SessionHandler();
+
 	private final static String GZIP = "gzip";
+	private final static String WEN = "?";
 
 	private String uri;
+	private String url;
 	private String host;
 	private String method;
 
 	private boolean keepAlive;
 	private String remoteAddress;
+
+	private Session session;
 
 	private Map<String, String> headers = new HashMap<>(8);
 	private Map<String, Object> parameters = new HashMap<>(8);
@@ -42,8 +52,8 @@ public class HttpRequest implements Request {
 	private io.netty.handler.codec.http.HttpRequest nettyRequest;
 	private Queue<HttpContent> contents = new LinkedList<>();
 
-	public void setNettyRequest(io.netty.handler.codec.http.HttpRequest msg) {
-		this.nettyRequest = msg;
+	public void setNettyRequest(io.netty.handler.codec.http.HttpRequest httpRequest) {
+		this.nettyRequest = httpRequest;
 	}
 
 	public void appendHttpContent(HttpContent content) {
@@ -51,11 +61,17 @@ public class HttpRequest implements Request {
 	}
 
 	/**
-	 * 初始化
+	 * init request
 	 *
 	 * @param remoteAddress
 	 */
 	public void initRequest(String remoteAddress) {
+		// url
+		url = nettyRequest.uri();
+		// uri init
+		int wenIndex = this.url.indexOf('?');
+		this.uri = wenIndex < 0 ? this.url : this.url.substring(0, wenIndex);
+		// remoteAddress
 		this.remoteAddress = remoteAddress;
 		// headers
 		nettyRequest.headers().forEach(header -> headers.put(header.getKey(), header.getValue()));
@@ -69,7 +85,22 @@ public class HttpRequest implements Request {
 			ServerCookieDecoder.LAX.decode(cookieString).forEach(cookie -> cookies.add(new Cookie(cookie.name(), cookie.value(), cookie.maxAge(), cookie.domain(), cookie.path(),
 					cookie.isSecure(), cookie.isHttpOnly())));
 		}
+		// parameter init
+		if (url.contains(WEN)) {
+			Map<String, List<String>> parameters =
+					new QueryStringDecoder(url, CharsetUtil.UTF_8).parameters();
+			if (null != parameters) {
+				this.parameters.putAll(parameters);
+			}
+		}
 
+		// session
+		session = SESSION_HANDLER.getSession(getCookieValue(HttpConstant.DEFAULT_SESSION_KEY));
+
+
+		if (HttpMethod.GET.name().equalsIgnoreCase(method)) {
+			return;
+		}
 
 	}
 
@@ -106,12 +137,7 @@ public class HttpRequest implements Request {
 
 	@Override
 	public String getUrl() {
-		return null;
-	}
-
-	@Override
-	public String getProtocol() {
-		return null;
+		return url;
 	}
 
 	@Override
@@ -165,11 +191,6 @@ public class HttpRequest implements Request {
 	@Override
 	public Map<String, Object> getAttributes() {
 		return null;
-	}
-
-	@Override
-	public boolean chunkIsEnd() {
-		return false;
 	}
 
 	@Override

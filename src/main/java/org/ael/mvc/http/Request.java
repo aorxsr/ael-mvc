@@ -15,13 +15,13 @@ import java.util.Map;
 public interface Request {
 
 	/**
-	 * 获取请求方法
+	 * get http method
 	 * @return
 	 */
 	String getMethod();
 
 	/**
-	 * 获取来路Uri
+	 * get uri
 	 * @return
 	 */
 	String getUri();
@@ -46,22 +46,6 @@ public interface Request {
 	 * @return request url
 	 */
 	String getUrl();
-
-	/**
-	 * Get request user-agent
-	 *
-	 * @return return user-agent
-	 */
-	default String userAgent() {
-		return header(HttpConstant.USER_AGENT);
-	}
-
-	/**
-	 * Get request http protocol
-	 *
-	 * @return Return protocol
-	 */
-	String getProtocol();
 
 	/**
 	 * Get current request Path params, like /users/:uid
@@ -117,6 +101,15 @@ public interface Request {
 	 */
 	default boolean isAjax() {
 		return "XMLHttpRequest".equals(header("X-Requested-With")) || "XMLHttpRequest".equals(header("x-requested-with"));
+	}
+
+	/**
+	 * Get request user-agent
+	 *
+	 * @return return user-agent
+	 */
+	default String userAgent() {
+		return header(HttpConstant.USER_AGENT);
 	}
 
 	/**
@@ -205,16 +198,13 @@ public interface Request {
 	 * @return Return parameter value
 	 */
 	default <T> T getAttribute(String name) {
-		if (null == name) return null;
+		if (null == name) {
+			return null;
+		}
 		Object object = getAttributes().get(name);
 		return null != object ? (T) object : null;
 	}
 
-	/**
-	 * @return return whether Chunk content has been read
-	 * @since 2.0.11
-	 */
-	boolean chunkIsEnd();
 
 	boolean isMultipart();
 

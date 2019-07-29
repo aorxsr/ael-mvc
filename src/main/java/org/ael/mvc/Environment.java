@@ -7,7 +7,6 @@ import java.util.Properties;
 /**
  * @Author: aorxsr
  * @Date: 2019/7/16 18:25
- *
  */
 public class Environment {
 
@@ -36,6 +35,10 @@ public class Environment {
 
 	public boolean getBoolean(String name) {
 		return properties.containsKey(name) ? (boolean) properties.get(name) : false;
+	}
+
+	public String getString(String name) {
+		return properties.containsKey(name) ? properties.get(name).toString() : null;
 	}
 
 }

@@ -2,6 +2,8 @@ package org.ael.mvc.server.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.DefaultEventLoop;
+import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -19,6 +21,8 @@ public class NettyServer implements Server {
 
 	private EventLoopGroup boss;
 	private EventLoopGroup work;
+
+	private EventLoop scheduleEventLoop;
 
 	private ChannelFuture future;
 
@@ -55,6 +59,9 @@ public class NettyServer implements Server {
 	private void init() {
 		boss = new NioEventLoopGroup();
 		work = new NioEventLoopGroup();
+
+		scheduleEventLoop = new DefaultEventLoop();
+		scheduleEventLoop.schedule()
 
 		serverBootstrap = new ServerBootstrap();
 		// 初始化配置

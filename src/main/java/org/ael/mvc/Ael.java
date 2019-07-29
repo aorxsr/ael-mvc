@@ -1,6 +1,8 @@
 package org.ael.mvc;
 
 import lombok.Getter;
+import org.ael.mvc.constant.HttpMethodConstant;
+import org.ael.mvc.http.session.SessionHandler;
 import org.ael.mvc.route.RouteFunctionHandler;
 import org.ael.mvc.route.RouteHandler;
 import org.ael.mvc.server.Server;
@@ -14,9 +16,11 @@ public class Ael {
 
 	private Server server = new NettyServer();
 	@Getter
-	private Environment environment = new Environment();
+	private Environment environment = Environment.of();
 	@Getter
 	private RouteHandler routeHandler = new RouteHandler();
+	@Getter
+	private SessionHandler sessionHandler = new SessionHandler(this);
 
 	public Ael start() {
 		server.start(this);
@@ -28,12 +32,12 @@ public class Ael {
 	}
 
 	public Ael get(String url, RouteFunctionHandler handler) {
-		routeHandler.addHandler("GET", url, handler);
+		routeHandler.addHandler(HttpMethodConstant.GET_UPPER, url, handler);
 		return this;
 	}
 
 	public Ael post(String url, RouteFunctionHandler handler) {
-		routeHandler.addHandler("POST", url, handler);
+		routeHandler.addHandler(HttpMethodConstant.POST_UPPER, url, handler);
 		return this;
 	}
 
