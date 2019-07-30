@@ -1,5 +1,6 @@
 package org.ael.mvc.route;
 
+import lombok.extern.slf4j.Slf4j;
 import org.ael.mvc.http.Request;
 import org.ael.mvc.http.Response;
 import org.ael.mvc.http.WebContent;
@@ -10,12 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author: aorxsr
  * @Date: 2019/7/29 11:57
  */
+@Slf4j
 public class RouteHandler {
 
 	private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
 
 	public void addHandler(String method, String url, RouteFunctionHandler routeFunctionHandler) {
 		String newUrl = method.toUpperCase() + "#" + url;
+		log.info(method + " : " + url);
 		handlers.put(newUrl, routeFunctionHandler);
 	}
 
