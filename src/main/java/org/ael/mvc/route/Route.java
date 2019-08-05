@@ -1,5 +1,6 @@
 package org.ael.mvc.route;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.lang.reflect.Method;
@@ -9,9 +10,19 @@ import java.lang.reflect.Method;
  * @Date: 2019/7/29 11:44
  */
 @Data
+@Builder
 public class Route {
 
-	private Object object;
+	private String path;
+	private String httpMethod;
+
+	private Class<?> classType;
+
+	private Object target;
 	private Method method;
+
+	private int routeType;
+
+	private RouteFunctionHandler routeFunctionHandler;
 
 }

@@ -7,7 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomIoc {
 
-    private Map<String, Bean> beans = new ConcurrentHashMap<>(32);
+	private Map<String, Bean> beans = new ConcurrentHashMap<>(32);
 
+	public void scanLocalCLass() {
+
+	}
 
 }

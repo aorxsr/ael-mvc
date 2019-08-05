@@ -9,6 +9,10 @@ import org.ael.mvc.http.WebContent;
 @FunctionalInterface
 public interface RouteFunctionHandler {
 
+	/**
+	 * 
+	 * @param webContent
+	 */
 	void handler(WebContent webContent);
 
 }
