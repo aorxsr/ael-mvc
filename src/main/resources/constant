@@ -1,0 +1,6 @@
+1. mvc扫描包
+org.ael.mvc.scanPackage: org.ael,org
+2. active子配置文件
+org.ael.active: test
+3. sessionKey
+org.ael.sessionKey : sessionId

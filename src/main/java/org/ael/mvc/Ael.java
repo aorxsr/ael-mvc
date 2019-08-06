@@ -15,33 +15,42 @@ import org.ael.mvc.server.netty.NettyServer;
  */
 public class Ael {
 
-	private Server server = new NettyServer();
-	@Getter
-	private Environment environment = Environment.of();
-	@Getter
-	private RouteHandler routeHandler = new RouteHandler();
-	@Getter
-	private SessionManager sessionManager = new SessionManager();
-	@Getter
-	private SessionHandler sessionHandler = new SessionHandler(sessionManager);
+    @Getter
+    private Class<?> startClass;
 
-	public Ael start() {
-		server.start(this);
-		return this;
-	}
+    private Server server = new NettyServer();
+    @Getter
+    private Environment environment = Environment.of();
+    @Getter
+    private RouteHandler routeHandler = new RouteHandler();
+    @Getter
+    private SessionManager sessionManager = new SessionManager();
+    @Getter
+    private SessionHandler sessionHandler = new SessionHandler(sessionManager);
 
-	public void stop() {
-		server.stop();
-	}
+    public Ael start() {
+        server.start(this);
+        return this;
+    }
 
-	public Ael get(String url, RouteFunctionHandler handler) {
-		routeHandler.addHandler(HttpMethodConstant.GET_UPPER, url, handler);
-		return this;
-	}
+    public Ael start(Class<?> startClass) {
+        this.startClass = startClass;
+        server.start(this);
+        return this;
+    }
 
-	public Ael post(String url, RouteFunctionHandler handler) {
-		routeHandler.addHandler(HttpMethodConstant.POST_UPPER, url, handler);
-		return this;
-	}
+    public void stop() {
+        server.stop();
+    }
+
+    public Ael get(String url, RouteFunctionHandler handler) {
+        routeHandler.addHandler(HttpMethodConstant.GET_UPPER, url, handler);
+        return this;
+    }
+
+    public Ael post(String url, RouteFunctionHandler handler) {
+        routeHandler.addHandler(HttpMethodConstant.POST_UPPER, url, handler);
+        return this;
+    }
 
 }

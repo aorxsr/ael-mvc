@@ -11,20 +11,20 @@ import org.ael.mvc.Ael;
  */
 public class WebContent {
 
-	@Setter
-	public static Ael ael;
+    @Setter
+    public static Ael ael;
 
-	@Getter
-	private Request request;
-	@Getter
-	private Response response;
-	@Getter
-	private ChannelHandlerContext ctx;
+    @Getter
+    private Request request;
+    @Getter
+    private Response response;
+    @Getter
+    private ChannelHandlerContext ctx;
 
-	public WebContent(Request request, Response response, ChannelHandlerContext ctx) {
-		this.request = request;
-		this.response = response;
-		this.ctx = ctx;
-	}
+    public WebContent(Request request, Response response, ChannelHandlerContext ctx) {
+        this.request = request;
+        this.response = response;
+        this.ctx = ctx;
+    }
 
 }

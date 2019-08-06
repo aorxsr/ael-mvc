@@ -24,7 +24,7 @@ public class SessionHandler {
 	}
 
 	public Session getSession(String sessionId, String ip) {
-		Session session = null;
+		Session session;
 		if (StringUtil.isNullOrEmpty(sessionId)) {
 			// create session
 			session = new HttpSession();

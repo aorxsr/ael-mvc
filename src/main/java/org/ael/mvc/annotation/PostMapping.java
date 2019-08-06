@@ -5,16 +5,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * @Author: aorxsr
- * @Date: 2019/7/31 20:22
- */
 @Target(value = {ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GetMapping {
+public @interface PostMapping {
 
-	String value() default "";
+    String value() default "";
 
-	String description() default "";
+    String description() default "";
 
 }

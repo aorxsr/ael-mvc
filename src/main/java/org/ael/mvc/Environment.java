@@ -10,35 +10,39 @@ import java.util.Properties;
  */
 public class Environment {
 
-	private Properties properties = new Properties();
+    private Properties properties = new Properties();
 
-	private Environment() {
-		properties.setProperty(EnvironmentConstant.HTTP_ZIP, String.valueOf(false));
-	}
+    private Environment() {
+        properties.setProperty(EnvironmentConstant.HTTP_ZIP, String.valueOf(false));
+    }
 
-	public static Environment of() {
-		return new Environment();
-	}
+    public static Environment of() {
+        return new Environment();
+    }
 
-	public Environment setProperty(String key, String value) {
-		properties.setProperty(key, value);
-		return this;
-	}
+    public Environment setProperty(String key, String value) {
+        properties.setProperty(key, value);
+        return this;
+    }
 
-	public void removeProperty(String key) {
-		properties.remove(key);
-	}
+    public void removeProperty(String key) {
+        properties.remove(key);
+    }
 
-	public boolean isProperty(String name) {
-		return properties.containsKey(name);
-	}
+    public boolean isProperty(String name) {
+        return properties.containsKey(name);
+    }
 
-	public boolean getBoolean(String name) {
-		return properties.containsKey(name) ? (boolean) properties.get(name) : false;
-	}
+    public boolean getBoolean(String name) {
+        return properties.containsKey(name) ? (boolean) properties.get(name) : false;
+    }
 
-	public String getString(String name) {
-		return properties.containsKey(name) ? properties.get(name).toString() : null;
-	}
+    public String getString(String name) {
+        return properties.containsKey(name) ? properties.get(name).toString() : null;
+    }
+
+    public String getString(String name, String defaultValue) {
+        return properties.containsKey(name) ? properties.get(name).toString() : defaultValue;
+    }
 
 }
