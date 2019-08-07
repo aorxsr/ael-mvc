@@ -29,12 +29,14 @@ public class Ael {
     private SessionHandler sessionHandler = new SessionHandler(sessionManager);
 
     public Ael start() {
+        routeHandler.initRouteHandler(this);
         server.start(this);
         return this;
     }
 
     public Ael start(Class<?> startClass) {
         this.startClass = startClass;
+        routeHandler.initRouteHandler(this);
         server.start(this);
         return this;
     }

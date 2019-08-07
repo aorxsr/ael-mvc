@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * @Author: aorxsr
  * @Date: 2019/7/31 20:22
  */
-@Target(value = {ElementType.TYPE})
+@Target(value = {ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GetMapping {
 

@@ -35,7 +35,7 @@ public class ServerTest {
 					handler.getRequest().getHeaders().forEach((k, v) -> sub.append(k + " " + v));
 					handler.getResponse().text(sub.toString());
 				})
-				.start();
+				.start(ServerTest.class);
 	}
 
 }

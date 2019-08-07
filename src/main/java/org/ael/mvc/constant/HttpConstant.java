@@ -8,6 +8,8 @@ import io.netty.util.AsciiString;
  */
 public interface HttpConstant {
 
+	String WELL = "#";
+
 	String ACCEPT              = "Accept";
 	String USER_AGENT          = "User-Agent";
 	String ACCEPT_ENCODING     = "Accept-Encoding";
