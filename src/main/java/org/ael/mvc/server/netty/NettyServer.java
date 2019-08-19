@@ -8,6 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.ael.mvc.Ael;
+import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.http.WebContent;
 import org.ael.mvc.http.session.SessionClearHandler;
 import org.ael.mvc.server.Server;
@@ -61,6 +62,8 @@ public class NettyServer implements Server {
 	}
 
 	private void init() {
+		ael.getEnvironment().initConfig(ael.getEnvironment().getString(EnvironmentConstant.ENVIRONMENT_FILE));
+
 		boss = new NioEventLoopGroup();
 		work = new NioEventLoopGroup();
 

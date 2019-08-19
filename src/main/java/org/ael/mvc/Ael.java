@@ -1,6 +1,7 @@
 package org.ael.mvc;
 
 import lombok.Getter;
+import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.http.session.SessionHandler;
 import org.ael.mvc.http.session.SessionManager;
@@ -38,6 +39,16 @@ public class Ael {
         this.startClass = startClass;
         routeHandler.initRouteHandler(this);
         server.start(this);
+        return this;
+    }
+
+    public Ael setSessionKey(String sessionKey) {
+        environment.setProperty(EnvironmentConstant.SESSION_KEY, sessionKey);
+        return this;
+    }
+
+    public Ael setFilePath(String filePath) {
+        environment.setProperty(EnvironmentConstant.ENVIRONMENT_FILE, filePath);
         return this;
     }
 

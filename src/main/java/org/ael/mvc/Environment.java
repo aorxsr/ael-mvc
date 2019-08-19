@@ -1,48 +1,94 @@
 package org.ael.mvc;
 
+import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.ael.mvc.constant.EnvironmentConstant;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
  * @Author: aorxsr
  * @Date: 2019/7/16 18:25
  */
+@Slf4j
 public class Environment {
 
-    private Properties properties = new Properties();
+	private ClassLoader classLoader = Environment.class.getClassLoader();
 
-    private Environment() {
-        properties.setProperty(EnvironmentConstant.HTTP_ZIP, String.valueOf(false));
-    }
+	private Properties properties = new Properties();
 
-    public static Environment of() {
-        return new Environment();
-    }
+	private Environment() {
+		properties.setProperty(EnvironmentConstant.HTTP_ZIP, String.valueOf(false));
+	}
 
-    public Environment setProperty(String key, String value) {
-        properties.setProperty(key, value);
-        return this;
-    }
+	public static Environment of() {
+		return new Environment();
+	}
 
-    public void removeProperty(String key) {
-        properties.remove(key);
-    }
+	public Environment setProperty(String key, String value) {
+		properties.setProperty(key, value);
+		return this;
+	}
 
-    public boolean isProperty(String name) {
-        return properties.containsKey(name);
-    }
+	public void removeProperty(String key) {
+		properties.remove(key);
+	}
 
-    public boolean getBoolean(String name) {
-        return properties.containsKey(name) ? (boolean) properties.get(name) : false;
-    }
+	public boolean isProperty(String name) {
+		return properties.containsKey(name);
+	}
 
-    public String getString(String name) {
-        return properties.containsKey(name) ? properties.get(name).toString() : null;
-    }
+	public boolean getBoolean(String name) {
+		return properties.containsKey(name) ? (boolean) properties.get(name) : false;
+	}
 
-    public String getString(String name, String defaultValue) {
-        return properties.containsKey(name) ? properties.get(name).toString() : defaultValue;
-    }
+	public String getString(String name) {
+		return properties.containsKey(name) ? properties.get(name).toString() : null;
+	}
+
+	public String getString(String name, String defaultValue) {
+		return properties.containsKey(name) ? properties.get(name).toString() : defaultValue;
+	}
+
+	public void initConfig(String filePath) {
+		try {
+			if (StringUtil.isNullOrEmpty(filePath)) {
+				String APPLICATION = "application.properties";
+				// default load application.properties
+				File appFile = new File(APPLICATION);
+				if (appFile.exists()) {
+					properties.load(new FileInputStream(appFile));
+				} else {
+					InputStream resourceAsStream = classLoader.getResourceAsStream(APPLICATION);
+					if (null != resourceAsStream) {
+						properties.load(resourceAsStream);
+						loadActiveFile(APPLICATION);
+					}
+				}
+			} else {
+				properties.load(new FileInputStream(filePath));
+				loadActiveFile(filePath);
+			}
+		} catch (IOException e) {
+			log.error(" env fileName " + filePath + " not found.");
+		}
+	}
+
+	private void loadActiveFile(String filePath) throws IOException {
+		String son = properties.getProperty(EnvironmentConstant.ACTIVE_NAME);
+		if (StringUtil.isNullOrEmpty(son)) {
+			return;
+		} else {
+			// load son file
+			String prifix = filePath.substring(0, filePath.lastIndexOf('.'));
+			filePath = prifix + "-" + son + ".properties";
+			properties.load(classLoader.getResourceAsStream(filePath));
+		}
+	}
 
 }

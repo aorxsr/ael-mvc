@@ -28,7 +28,7 @@ public class Cookie {
 	/**
 	 * Cookie有效期
 	 */
-	private long maxAge = -1;
+	private Long maxAge = null;
 	/**
 	 * Cookie域属性，控制哪些站点可以看到Cookie
 	 */
@@ -44,10 +44,10 @@ public class Cookie {
 	 * 设置了属性secure，cookie只有在https协议加密情况下才会发送给服务端。但是这并不是最安全的，由于其固有的不安全性，敏感信息也是不应该通过cookie传输的.
 	 * Set-Cookie: id=a3fWa; Expires=Wed, 21 Oct 2015 07:28:00 GMT; Secure;
 	 */
-	private boolean secure = false;
+	private Boolean secure = null;
 	/**
 	 * 是否禁止JavaScript操作Cookie
 	 */
-	private boolean httpOnly = false;
+	private Boolean httpOnly = null;
 
 }

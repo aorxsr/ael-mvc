@@ -100,10 +100,19 @@ public class HttpResponse implements Response {
             cookies.forEach(cookie -> {
                 io.netty.handler.codec.http.cookie.Cookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
                 nettyCookie.setDomain(cookie.getDomain());
-                nettyCookie.setHttpOnly(cookie.isHttpOnly());
-                nettyCookie.setMaxAge(cookie.getMaxAge());
+                Boolean httpOnly = cookie.getHttpOnly();
+                if (null != httpOnly) {
+                    nettyCookie.setHttpOnly(httpOnly);
+                }
+                Long maxAge = cookie.getMaxAge();
+                if (null != maxAge) {
+                    nettyCookie.setMaxAge(maxAge);
+                }
                 nettyCookie.setPath(cookie.getPath());
-                nettyCookie.setSecure(cookie.isSecure());
+                Boolean secure = cookie.getSecure();
+                if (null != secure) {
+                    nettyCookie.setSecure(secure);
+                }
                 nettyCookies.add(nettyCookie);
             });
             return nettyCookies;
