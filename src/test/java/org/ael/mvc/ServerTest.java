@@ -24,17 +24,9 @@ public class ServerTest {
 	@Test
 	public void test1() {
 		new Ael()
-				.get("/", handler -> {
-					handler.getResponse().text("ABCD");
-					Response response = handler.getResponse();
-					response.setCookie("cookieTest", "ffh");
-				})
-				.post("/post", handler -> handler.getResponse().json("{\"a\":\"aaa\"}"))
-				.get("/a", handler -> {
-					StringBuffer sub = new StringBuffer();
-					handler.getRequest().getHeaders().forEach((k, v) -> sub.append(k + " " + v));
-					handler.getResponse().text(sub.toString());
-				})
+				.get("/", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
+				.get("/get", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
+				.get("/a", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
 				.start(ServerTest.class);
 	}
 

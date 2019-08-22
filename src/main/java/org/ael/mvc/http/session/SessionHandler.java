@@ -38,10 +38,16 @@ public class SessionHandler {
 			return session;
 		} else {
 			session = sessionManager.getSession(sessionId);
-			// 更新时间
-			session.setExpired(Instant.now().getEpochSecond() + expiredTime);
-			sessionManager.putSession(session);
+			if (null == session) {
+				session = new HttpSession();
+				session.setId(sessionManager.generateId());
+				session.setIp(ip);
+			} else {
+				// 更新时间
+				session.setExpired(Instant.now().getEpochSecond() + expiredTime);
+			}
 		}
+		sessionManager.putSession(session);
 
 		return session;
 	}

@@ -16,54 +16,54 @@ import org.ael.mvc.server.netty.NettyServer;
  */
 public class Ael {
 
-    @Getter
-    private Class<?> startClass;
+	@Getter
+	private Class<?> startClass;
 
-    private Server server = new NettyServer();
-    @Getter
-    private Environment environment = Environment.of();
-    @Getter
-    private RouteHandler routeHandler = new RouteHandler();
-    @Getter
-    private SessionManager sessionManager = new SessionManager();
-    @Getter
-    private SessionHandler sessionHandler = new SessionHandler(sessionManager);
+	private Server server = new NettyServer();
+	@Getter
+	private Environment environment = Environment.of();
+	@Getter
+	private RouteHandler routeHandler = new RouteHandler();
+	@Getter
+	private SessionManager sessionManager = new SessionManager();
+	@Getter
+	private SessionHandler sessionHandler = new SessionHandler(sessionManager);
 
-    public Ael start() {
-        routeHandler.initRouteHandler(this);
-        server.start(this);
-        return this;
-    }
+	public Ael start() {
+		routeHandler.initRouteHandler(this);
+		server.start(this);
+		return this;
+	}
 
-    public Ael start(Class<?> startClass) {
-        this.startClass = startClass;
-        routeHandler.initRouteHandler(this);
-        server.start(this);
-        return this;
-    }
+	public Ael start(Class<?> startClass) {
+		this.startClass = startClass;
+		routeHandler.initRouteHandler(this);
+		server.start(this);
+		return this;
+	}
 
-    public Ael setSessionKey(String sessionKey) {
-        environment.setProperty(EnvironmentConstant.SESSION_KEY, sessionKey);
-        return this;
-    }
+	public Ael setSessionKey(String sessionKey) {
+		environment.setProperty(EnvironmentConstant.SESSION_KEY, sessionKey);
+		return this;
+	}
 
-    public Ael setFilePath(String filePath) {
-        environment.setProperty(EnvironmentConstant.ENVIRONMENT_FILE, filePath);
-        return this;
-    }
+	public Ael setFilePath(String filePath) {
+		environment.setProperty(EnvironmentConstant.ENVIRONMENT_FILE, filePath);
+		return this;
+	}
 
-    public void stop() {
-        server.stop();
-    }
+	public void stop() {
+		server.stop();
+	}
 
-    public Ael get(String url, RouteFunctionHandler handler) {
-        routeHandler.addHandler(HttpMethodConstant.GET_UPPER, url, handler);
-        return this;
-    }
+	public Ael get(String url, RouteFunctionHandler handler) {
+		routeHandler.addHandler(HttpMethodConstant.GET_UPPER, url, handler);
+		return this;
+	}
 
-    public Ael post(String url, RouteFunctionHandler handler) {
-        routeHandler.addHandler(HttpMethodConstant.POST_UPPER, url, handler);
-        return this;
-    }
+	public Ael post(String url, RouteFunctionHandler handler) {
+		routeHandler.addHandler(HttpMethodConstant.POST_UPPER, url, handler);
+		return this;
+	}
 
 }

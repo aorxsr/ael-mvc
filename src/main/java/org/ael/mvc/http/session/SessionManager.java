@@ -1,6 +1,7 @@
 package org.ael.mvc.http.session;
 
 import lombok.Getter;
+import org.ael.mvc.http.HttpSession;
 import org.ael.mvc.http.Session;
 import sun.plugin2.message.Message;
 

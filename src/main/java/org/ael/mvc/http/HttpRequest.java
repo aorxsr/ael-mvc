@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import static org.ael.mvc.constant.HttpConstant.COOKIE;
 import static org.ael.mvc.constant.HttpConstant.HOST;
 
 /**
@@ -80,7 +81,7 @@ public class HttpRequest implements Request {
 		// keepAlive
 		keepAlive = HttpUtil.isKeepAlive(nettyRequest);
 		// cookie init
-		String cookieString = headers.get(WebContent.ael.getEnvironment().getString(EnvironmentConstant.SESSION_KEY, EnvironmentConstant.DEFAULT_SESSION_KEY));
+		String cookieString = headers.get(COOKIE);
 		if (!StringUtil.isNullOrEmpty(cookieString)) {
 			ServerCookieDecoder.LAX.decode(cookieString).forEach(cookie -> cookies.put(cookie.name(), new Cookie(cookie.name(), cookie.value(), cookie.maxAge(), cookie.domain(), cookie.path(),
 					cookie.isSecure(), cookie.isHttpOnly())));
@@ -95,7 +96,7 @@ public class HttpRequest implements Request {
 		}
 
 		// session
-		session = SESSION_HANDLER.getSession(getCookieValue(EnvironmentConstant.SESSION_KEY), remoteAddress);
+		session = SESSION_HANDLER.getSession(getCookieValue(WebContent.ael.getEnvironment().getString(EnvironmentConstant.SESSION_KEY, HttpConstant.DEFAULT_SESSION_KEY)), remoteAddress);
 
 		if (HttpMethod.GET.name().equalsIgnoreCase(method)) {
 			return;
