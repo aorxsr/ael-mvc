@@ -27,144 +27,155 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class RouteHandler {
 
-    private Ael ael;
+	private Ael ael;
 
-    public void initRouteHandler(Ael ael) {
-        this.ael = ael;
-        try {
-            scanLocalCLass();
-        } catch (IllegalAccessException e) {
-            log.error(e.getMessage());
-        } catch (InstantiationException e) {
-            log.error(e.getMessage());
-        }
-    }
+	public void initRouteHandler(Ael ael) {
+		this.ael = ael;
+		try {
+			scanLocalCLass();
+		} catch (IllegalAccessException e) {
+			log.error(e.getMessage());
+		} catch (InstantiationException e) {
+			log.error(e.getMessage());
+		}
+	}
 
-    private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
 
-    private ConcurrentHashMap<String, Route> routeHandlers = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Route> routeHandlers = new ConcurrentHashMap<>();
 
-    public void scanLocalCLass() throws IllegalAccessException, InstantiationException {
-        String scanPackage = ael.getEnvironment().getString(EnvironmentConstant.SCAN_PACKAGE);
-        if (StringUtil.isNullOrEmpty(scanPackage)) {
-            scanPackage = ael.getStartClass().getPackage().getName();
-            if (StringUtil.isNullOrEmpty(scanPackage)) {
-                return;
-            }
-        }
+	public void scanLocalCLass() throws IllegalAccessException, InstantiationException {
+		String scanPackage = ael.getEnvironment().getString(EnvironmentConstant.SCAN_PACKAGE);
+		if (StringUtil.isNullOrEmpty(scanPackage)) {
+			scanPackage = ael.getStartClass().getPackage().getName();
+			if (StringUtil.isNullOrEmpty(scanPackage)) {
+				return;
+			}
+		}
 
-        Set<Class<?>> classes = ClassUtil.scanPackage(scanPackage);
-        for (Class<?> clazz : classes) {
-            Controller controller = clazz.getAnnotation(Controller.class);
-            if (null == controller) {
-                continue;
-            }
+		Set<Class<?>> classes = ClassUtil.scanPackage(scanPackage);
+		for (Class<?> clazz : classes) {
+			Controller controller = clazz.getAnnotation(Controller.class);
+			if (null == controller) {
+				continue;
+			}
 
-            String controllerUrl;
+			String controllerUrl;
 
-            GetMapping getMapping = clazz.getAnnotation(GetMapping.class);
-            PostMapping postMapping = clazz.getAnnotation(PostMapping.class);
-            if (null == getMapping) {
-                if (null == postMapping) {
-                    continue;
-                } else {
-                    controllerUrl = postMapping.value();
-                }
-            } else {
-                controllerUrl = getMapping.value();
-            }
+			GetMapping getMapping = clazz.getAnnotation(GetMapping.class);
+			PostMapping postMapping = clazz.getAnnotation(PostMapping.class);
+			if (null == getMapping) {
+				if (null == postMapping) {
+					continue;
+				} else {
+					controllerUrl = postMapping.value();
+				}
+			} else {
+				controllerUrl = getMapping.value();
+			}
 
-            // 获取所有方法
-            Method[] methods = clazz.getMethods();
-            for (Method method : methods) {
-                GetMapping getMethod = method.getAnnotation(GetMapping.class);
-                if (null == getMethod) {
-                    PostMapping postMethod = method.getAnnotation(PostMapping.class);
-                    if (null == postMethod) {
-                        continue;
-                    } else {
-                        String methodUrl = postMethod.value();
-                        if (StringUtil.isNullOrEmpty(methodUrl)) {
-                            continue;
-                        }
-                        addRoute(HttpMethodConstant.POST_UPPER, controllerUrl + methodUrl, clazz, method);
-                    }
-                } else {
-                    // Get方法,
-                    String methodUrl = getMethod.value();
-                    if (StringUtil.isNullOrEmpty(methodUrl)) {
-                        continue;
-                    }
-                    addRoute(HttpMethodConstant.GET_UPPER, controllerUrl + methodUrl, clazz, method);
-                }
-            }
-        }
-    }
+			// 获取所有方法
+			Method[] methods = clazz.getMethods();
+			for (Method method : methods) {
+				GetMapping getMethod = method.getAnnotation(GetMapping.class);
+				if (null == getMethod) {
+					PostMapping postMethod = method.getAnnotation(PostMapping.class);
+					if (null == postMethod) {
+						continue;
+					} else {
+						String methodUrl = postMethod.value();
+						if (StringUtil.isNullOrEmpty(methodUrl)) {
+							continue;
+						}
+						addRoute(HttpMethodConstant.POST_UPPER, controllerUrl + methodUrl, clazz, method);
+					}
+				} else {
+					// Get方法,
+					String methodUrl = getMethod.value();
+					if (StringUtil.isNullOrEmpty(methodUrl)) {
+						continue;
+					}
+					addRoute(HttpMethodConstant.GET_UPPER, controllerUrl + methodUrl, clazz, method);
+				}
+			}
+		}
+	}
 
-    private void addRoute(String methodType, String newUrl, Class<?> clazz, Method method) throws IllegalAccessException, InstantiationException {
-        routeHandlers.put(methodType + HttpConstant.WELL + newUrl, Route.builder()
-                .target(clazz.newInstance())
-                .classType(clazz)
-                .httpMethod(HttpMethodConstant.POST_UPPER)
-                .path(newUrl)
-                .routeType(RouteTypeConstant.ROUTE_TYPE_CLASS)
-                .method(method)
-                .build());
+	private void addRoute(String methodType, String newUrl, Class<?> clazz, Method method) throws IllegalAccessException, InstantiationException {
+		routeHandlers.put(methodType + HttpConstant.WELL + newUrl, Route.builder()
+				.target(clazz.newInstance())
+				.classType(clazz)
+				.httpMethod(HttpMethodConstant.POST_UPPER)
+				.path(newUrl)
+				.routeType(RouteTypeConstant.ROUTE_TYPE_CLASS)
+				.method(method)
+				.build());
 
-        log.info(methodType + " : " + newUrl);
-    }
+		log.info(methodType + " : " + newUrl);
+	}
 
 
-    public void addHandler(String method, String url, RouteFunctionHandler routeFunctionHandler) {
-        String newUrl = method.toUpperCase() + "#" + url;
-        log.info(method + " : " + url);
+	public void addHandler(String method, String url, RouteFunctionHandler routeFunctionHandler) {
+		String newUrl = method.toUpperCase() + "#" + url;
+		log.info(method + " : " + url);
 
-        if (routeHandlers.containsKey(newUrl)) {
-            log.error("url:" + newUrl + " contains...");
-        } else {
-            // put
-            handlers.put(newUrl, routeFunctionHandler);
-            routeHandlers.put(newUrl, Route.builder()
-                    .httpMethod(method)
-                    .classType(routeFunctionHandler.getClass())
-                    .path(url)
-                    .routeFunctionHandler(routeFunctionHandler)
-                    .routeType(RouteTypeConstant.ROUTE_TYPE_FUNCTION)
-                    .build());
-        }
+		if (routeHandlers.containsKey(newUrl)) {
+			log.error("url:" + newUrl + " contains...");
+		} else {
+			// put
+			handlers.put(newUrl, routeFunctionHandler);
+			routeHandlers.put(newUrl, Route.builder()
+					.httpMethod(method)
+					.classType(routeFunctionHandler.getClass())
+					.path(url)
+					.routeFunctionHandler(routeFunctionHandler)
+					.routeType(RouteTypeConstant.ROUTE_TYPE_FUNCTION)
+					.build());
+		}
 
-    }
+	}
 
-    public WebContent executeHandler(WebContent webContent) {
-        Request request = webContent.getRequest();
-        Response response = webContent.getResponse();
+	public WebContent executeHandler(WebContent webContent) {
+		Request request = webContent.getRequest();
+		Response response = webContent.getResponse();
 
-        String uri = request.getUri();
+		String uri = request.getUri();
 
-        String key = request.getMethod().toUpperCase() + "#" + uri;
+		String key = request.getMethod().toUpperCase() + "#" + uri;
 
-        if (routeHandlers.containsKey(key)) {
-            Route route = routeHandlers.get(key);
-            if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
-                route.getRouteFunctionHandler().handler(webContent);
-            } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
-                try {
-                    route.getMethod().invoke(route.getTarget(), webContent);
-                } catch (IllegalAccessException e) {
-                    log.info(e.getMessage());
-                } catch (InvocationTargetException e) {
-                    log.info(e.getMessage());
-                }
-            } else {
-                response.text(" No route type " + route.getRouteType());
-            }
-        } else {
-            // 返回404
-            response.setStatus(500);
-            response.text(" No Mapping " + uri);
-        }
+		// 判断是否是 静态资源文件...
+		if (isStatics(uri)) {
 
-        return webContent;
-    }
+		} else {
+			if (routeHandlers.containsKey(key)) {
+				Route route = routeHandlers.get(key);
+				if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
+					route.getRouteFunctionHandler().handler(webContent);
+				} else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
+					try {
+						route.getMethod().invoke(route.getTarget(), webContent);
+					} catch (IllegalAccessException e) {
+						log.info(e.getMessage());
+					} catch (InvocationTargetException e) {
+						log.info(e.getMessage());
+					}
+				} else {
+					response.text(" No route type " + route.getRouteType());
+				}
+			} else {
+				// 返回404
+				response.setStatus(500);
+				response.text(" No Mapping " + uri);
+			}
+		}
+
+		return webContent;
+	}
+
+	private boolean isStatics(String uri) {
+
+
+		return false;
+	}
 
 }

@@ -4,3 +4,7 @@ org.ael.mvc.scanPackage: org.ael,org
 org.ael.active: test
 3. sessionKey
 org.ael.sessionKey : sessionId
+4. 默认页面前缀
+org.ael.template.prefix
+5. 默认页面后缀
+org.ael.template.suffix

@@ -3,12 +3,18 @@ package org.ael.mvc;
 import lombok.Getter;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
+import org.ael.mvc.handler.StaticsResourcesHandler;
 import org.ael.mvc.http.session.SessionHandler;
 import org.ael.mvc.http.session.SessionManager;
 import org.ael.mvc.route.RouteFunctionHandler;
 import org.ael.mvc.route.RouteHandler;
 import org.ael.mvc.server.Server;
 import org.ael.mvc.server.netty.NettyServer;
+import org.ael.mvc.template.AelTemplate;
+import org.ael.mvc.template.give.DefaultTemplate;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @Author: aorxsr
@@ -18,6 +24,10 @@ public class Ael {
 
 	@Getter
 	private Class<?> startClass;
+
+	private AelTemplate aelTemplate = new DefaultTemplate();
+
+	private StaticsResourcesHandler staticsResourcesHandler = new StaticsResourcesHandler();
 
 	private Server server = new NettyServer();
 	@Getter
@@ -63,6 +73,37 @@ public class Ael {
 
 	public Ael post(String url, RouteFunctionHandler handler) {
 		routeHandler.addHandler(HttpMethodConstant.POST_UPPER, url, handler);
+		return this;
+	}
+
+	public Ael setTemplateImpl(Class<?> templateClass) throws IllegalAccessException, InstantiationException {
+		aelTemplate = (AelTemplate) templateClass.newInstance();
+		return this;
+	}
+
+	public Ael addResourcesMapping(String resourcesHandler, String resourcesLocation) {
+		staticsResourcesHandler.getResources().put(resourcesHandler, resourcesLocation);
+		return this;
+	}
+
+	public Ael addResourcesMappingAll(Map<String, String> mapping) {
+		staticsResourcesHandler.getResources().putAll(mapping);
+		return this;
+	}
+
+	public Ael removeResourcesMapping(String resourcesHandler) {
+		if (staticsResourcesHandler.getResources().containsKey(resourcesHandler)) {
+			staticsResourcesHandler.getResources().remove(resourcesHandler);
+		}
+		return this;
+	}
+
+	public Ael removeResourcesMappingAll(Map<String, String> mapping) {
+		mapping.forEach((resourceHandler, resourcesLocation) -> {
+			if (staticsResourcesHandler.getResources().containsKey(resourceHandler)) {
+				staticsResourcesHandler.getResources().remove(resourceHandler);
+			}
+		});
 		return this;
 	}
 

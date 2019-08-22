@@ -1,7 +1,5 @@
 package org.ael.mvc;
 
-import org.ael.mvc.http.Response;
-import org.ael.mvc.http.body.StringBody;
 import org.ael.mvc.server.Server;
 import org.ael.mvc.server.netty.NettyServer;
 import org.junit.Test;
@@ -22,7 +20,7 @@ public class ServerTest {
 
 
 	@Test
-	public void test1() {
+	public void test1() throws InstantiationException, IllegalAccessException {
 		new Ael()
 				.get("/", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
 				.get("/get", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
