@@ -1,6 +1,7 @@
 package org.ael.mvc.template;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.ael.mvc.http.WebContent;
 
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Map;
  * @Date: 2019/8/22 19:50
  */
 @Data
+@NoArgsConstructor
 public class ModelAndView {
 
 	String view;
@@ -17,5 +19,9 @@ public class ModelAndView {
 	Map<String, Object> model;
 
 	WebContent webContent;
+
+	public ModelAndView(String view) {
+		this.view = view;
+	}
 
 }

@@ -54,6 +54,19 @@ public class DefaultTemplate implements AelTemplate {
 		SUFFIX = environment.getString(EnvironmentConstant.TEMPLATE_SUFFIX, EnvironmentConstant.DEFAULT_TEMPLATE_SUFFIX);
 	}
 
+	@Override
+	public String readFileContext(String view) throws ViewNotFoundException {
+		InputStream resourceAsStream = classLoader.getResourceAsStream(PREFIX + view + SUFFIX);
+		if (null == resourceAsStream) {
+			resourceAsStream = this.getClass().getResourceAsStream(PREFIX + view + SUFFIX);
+		}
+		if (null == resourceAsStream) {
+			throw new ViewNotFoundException(view + " view not found ... ");
+		} else {
+			return readFile(resourceAsStream);
+		}
+	}
+
 	private String readFile(InputStream inStream) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inStream));
 		StringBuilder builder = new StringBuilder();

@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.internal.StringUtil;
+import lombok.var;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.exception.ViewNotFoundException;
@@ -19,6 +20,7 @@ import org.ael.mvc.http.*;
 import org.ael.mvc.http.body.BodyWrite;
 import org.ael.mvc.http.body.ViewBody;
 import org.ael.mvc.route.RouteHandler;
+import org.ael.mvc.template.ModelAndView;
 
 import java.util.Date;
 import java.util.Set;
@@ -89,6 +91,19 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
 		return response.getBody().body(new BodyWrite() {
 			@Override
 			public FullHttpResponse onView(ViewBody body) {
+				// 读取文件
+				try {
+					String context = WebContent.ael.getAelTemplate().readFileContext(body.getUrl());
+					DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()), Unpooled.copiedBuffer(context.getBytes()));
+					appendResponseCookie(response.getNettyCookies(), defaultFullHttpResponse);
+					response.setContentType(HttpConstant.TEXT_HTML);
+					response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
+					defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
+					return defaultFullHttpResponse;
+				} catch (ViewNotFoundException e) {
+					e.printStackTrace();
+				}
+
 				return null;
 			}
 

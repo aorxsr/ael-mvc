@@ -1,6 +1,7 @@
 package org.ael.mvc.http.body;
 
 import io.netty.handler.codec.http.FullHttpResponse;
+import lombok.Getter;
 
 /**
  * @Author: aorxsr
@@ -8,6 +9,7 @@ import io.netty.handler.codec.http.FullHttpResponse;
  */
 public class ViewBody implements Body {
 
+	@Getter
 	private String url;
 
 	public static ViewBody of(String htmlUrl) {

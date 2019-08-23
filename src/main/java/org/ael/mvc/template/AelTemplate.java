@@ -25,4 +25,6 @@ public interface AelTemplate {
 	 */
 	void init(Ael ael);
 
+	String readFileContext(String view) throws ViewNotFoundException;
+
 }
