@@ -11,6 +11,7 @@ import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.constant.RouteTypeConstant;
+import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.Request;
 import org.ael.mvc.http.Response;
 import org.ael.mvc.http.WebContent;
@@ -135,7 +136,7 @@ public class RouteHandler {
 
 	}
 
-	public WebContent executeHandler(WebContent webContent) {
+	public WebContent executeHandler(WebContent webContent) throws ViewNotFoundException {
 		Request request = webContent.getRequest();
 		Response response = webContent.getResponse();
 
@@ -145,7 +146,7 @@ public class RouteHandler {
 
 		// 判断是否是 静态资源文件...
 		if (isStatics(uri)) {
-
+			webContent = ael.getStaticsResourcesHandler().rander(webContent);
 		} else {
 			if (routeHandlers.containsKey(key)) {
 				Route route = routeHandlers.get(key);
@@ -173,8 +174,11 @@ public class RouteHandler {
 	}
 
 	private boolean isStatics(String uri) {
-
-
+		for (String resourcesHandler : ael.getStaticsResourcesHandler().getResourcesHandlers()) {
+			if (uri.startsWith(resourcesHandler)) {
+				return true;
+			}
+		}
 		return false;
 	}
 

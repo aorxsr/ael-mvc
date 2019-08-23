@@ -3,6 +3,7 @@ package org.ael.mvc.template.give;
 import org.ael.mvc.Ael;
 import org.ael.mvc.Environment;
 import org.ael.mvc.constant.EnvironmentConstant;
+import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.WebContent;
 import org.ael.mvc.template.AelTemplate;
@@ -33,10 +34,14 @@ public class DefaultTemplate implements AelTemplate {
 		String view = modelAndView.getView();
 		InputStream resourceAsStream = classLoader.getResourceAsStream(PREFIX + view + SUFFIX);
 		if (null == resourceAsStream) {
+			resourceAsStream = this.getClass().getResourceAsStream(PREFIX + view + SUFFIX);
+		}
+		if (null == resourceAsStream) {
 			throw new ViewNotFoundException(view + " view not found ... ");
 		} else {
 			String readFile = readFile(resourceAsStream);
 			webContent.getResponse().text(readFile);
+			webContent.getResponse().setContentType(HttpConstant.TEXT_HTML);
 			return webContent;
 		}
 	}

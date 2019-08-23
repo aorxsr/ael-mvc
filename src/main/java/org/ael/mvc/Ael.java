@@ -25,8 +25,10 @@ public class Ael {
 	@Getter
 	private Class<?> startClass;
 
+	@Getter
 	private AelTemplate aelTemplate = new DefaultTemplate();
 
+	@Getter
 	private StaticsResourcesHandler staticsResourcesHandler = new StaticsResourcesHandler();
 
 	private Server server = new NettyServer();
@@ -83,17 +85,20 @@ public class Ael {
 
 	public Ael addResourcesMapping(String resourcesHandler, String resourcesLocation) {
 		staticsResourcesHandler.getResources().put(resourcesHandler, resourcesLocation);
+		staticsResourcesHandler.getResourcesHandlers().add(resourcesHandler);
 		return this;
 	}
 
 	public Ael addResourcesMappingAll(Map<String, String> mapping) {
 		staticsResourcesHandler.getResources().putAll(mapping);
+		staticsResourcesHandler.getResourcesHandlers().addAll(mapping.keySet());
 		return this;
 	}
 
 	public Ael removeResourcesMapping(String resourcesHandler) {
 		if (staticsResourcesHandler.getResources().containsKey(resourcesHandler)) {
 			staticsResourcesHandler.getResources().remove(resourcesHandler);
+			staticsResourcesHandler.getResourcesHandlers().remove(resourcesHandler);
 		}
 		return this;
 	}
@@ -102,6 +107,7 @@ public class Ael {
 		mapping.forEach((resourceHandler, resourcesLocation) -> {
 			if (staticsResourcesHandler.getResources().containsKey(resourceHandler)) {
 				staticsResourcesHandler.getResources().remove(resourceHandler);
+				staticsResourcesHandler.getResourcesHandlers().remove(resourceHandler);
 			}
 		});
 		return this;

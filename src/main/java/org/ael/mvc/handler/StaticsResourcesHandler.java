@@ -1,13 +1,15 @@
 package org.ael.mvc.handler;
 
 import lombok.Getter;
+import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.Request;
 import org.ael.mvc.http.WebContent;
+import org.ael.mvc.template.AelTemplate;
+import org.ael.mvc.template.ModelAndView;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,11 +22,12 @@ public class StaticsResourcesHandler {
 	@Getter
 	private Map<String, String> resources = new LinkedHashMap<>(8);
 
+	@Getter
 	private Set<String> resourcesHandlers = new HashSet<>(8);
 
 	private Map<String, String> MAPPING_CACHE = new HashMap<>(16);
 
-	public WebContent rander(WebContent webContent) {
+	public WebContent rander(WebContent webContent) throws ViewNotFoundException {
 		// 去除？后面的, 然后转换为
 		Request request = webContent.getRequest();
 		String uri = request.getUri();
@@ -33,18 +36,19 @@ public class StaticsResourcesHandler {
 
 		for (String resourcesHanler : resourcesHandlers) {
 			if (uri.startsWith(resourcesHanler)) {
-				uri =
+				if (resources.containsKey(resources)) {
+					uri = uri.replace(resourcesHanler, resources.get(resources));
+				}
 				break;
 			}
 		}
 
-
-
-
-
+		AelTemplate aelTemplate = WebContent.ael.getAelTemplate();
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setView(uri);
+		webContent = aelTemplate.render(modelAndView, webContent);
 		return webContent;
 	}
 
-	public void put
 
 }

@@ -14,6 +14,7 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.internal.StringUtil;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
+import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.*;
 import org.ael.mvc.http.body.BodyWrite;
 import org.ael.mvc.http.body.ViewBody;
@@ -62,7 +63,13 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
 	private WebContent execute(WebContent webContent) {
 		RouteHandler routeHandler = WebContent.ael.getRouteHandler();
 
-		return routeHandler.executeHandler(webContent);
+		try {
+			return routeHandler.executeHandler(webContent);
+		} catch (ViewNotFoundException e) {
+			// send error
+			webContent.getResponse().text(e.getMessage());
+			return webContent;
+		}
 	}
 
 	private FullHttpResponse buildResponse(WebContent webContent) {
