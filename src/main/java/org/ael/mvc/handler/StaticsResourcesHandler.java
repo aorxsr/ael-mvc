@@ -1,6 +1,7 @@
 package org.ael.mvc.handler;
 
 import lombok.Getter;
+import org.ael.mvc.constant.ContentType;
 import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.Request;
 import org.ael.mvc.http.WebContent;
@@ -36,11 +37,21 @@ public class StaticsResourcesHandler {
 
 		for (String resourcesHanler : resourcesHandlers) {
 			if (uri.startsWith(resourcesHanler)) {
-				if (resources.containsKey(resources)) {
-					uri = uri.replace(resourcesHanler, resources.get(resources));
+				if (resources.containsKey(resourcesHanler)) {
+					uri = uri.replace(resourcesHanler, resources.get(resourcesHanler));
 				}
 				break;
 			}
+		}
+
+		// 判断结尾是否是.html 或者 .
+		if (uri.contains("?")) {
+			uri = uri.substring(0, uri.indexOf("?"));
+		}
+
+		if (uri.contains(".")) {
+			String suffix = uri.substring(uri.lastIndexOf(".") + 1);
+			webContent.getResponse().setContentType(ContentType.get(suffix));
 		}
 
 		AelTemplate aelTemplate = WebContent.ael.getAelTemplate();

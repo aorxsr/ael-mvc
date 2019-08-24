@@ -25,8 +25,9 @@ public class ServerTest {
 				.get("/", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
 				.get("/get", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
 				.get("/a", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
-				.get("/index.html", handler -> handler.getResponse().html("/template/index.html"))
-				.addResourcesMapping("/template/", "/")
+//				.get("/index.html", handler -> handler.getResponse().html("/template/index.html"))
+				.addResourcesMapping("/statics/", "/statics/")
+				.addResourcesMapping("/view/", "/template/")
 				.start(ServerTest.class);
 	}
 
