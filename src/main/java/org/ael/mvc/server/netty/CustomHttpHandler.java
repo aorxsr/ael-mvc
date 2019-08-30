@@ -2,6 +2,7 @@ package org.ael.mvc.server.netty;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -103,12 +104,19 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
 				} catch (ViewNotFoundException e) {
 					e.printStackTrace();
 				}
-
 				return null;
 			}
 
 			@Override
 			public FullHttpResponse onByteBuf(Object byteBuf) {
+				DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()));
+				response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
+				ChannelHandlerContext ctx = webContent.getCtx();
+				ctx.write(defaultFullHttpResponse, ctx.voidPromise());
+				ChannelFuture future = ctx.writeAndFlush(byteBuf);
+//				if (!request.isKeepAlive()) {
+					future.addListener(ChannelFutureListener.CLOSE);
+//				}
 				return null;
 			}
 

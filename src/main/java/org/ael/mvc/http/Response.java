@@ -1,10 +1,17 @@
 package org.ael.mvc.http;
 
+import org.ael.mvc.constant.ContentType;
 import org.ael.mvc.constant.HttpConstant;
+import org.ael.mvc.exception.NotFoundException;
 import org.ael.mvc.http.body.Body;
+import org.ael.mvc.http.body.StreamBody;
 import org.ael.mvc.http.body.StringBody;
 import org.ael.mvc.http.body.ViewBody;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,20 +22,28 @@ import java.util.Set;
 public interface Response {
 
 	int getStatus();
+
 	void setStatus(int status);
 
 	Map<String, String> getHeaders();
+
 	String getHeader(String key);
+
 	void addHeader(String key, String value);
+
 	void removeHeader(String key);
 
 	String getContentType();
+
 	void setContentType(String value);
 
 	/* cookie */
 	Cookie getCookie(String name);
+
 	Set<Cookie> getCookies();
+
 	Cookie setCookie(Cookie cookie);
+
 	Cookie setCookie(String name, String value);
 
 	Set<io.netty.handler.codec.http.cookie.Cookie> getNettyCookies();
@@ -50,7 +65,19 @@ public interface Response {
 		write(ViewBody.of(htmlUrl));
 	}
 
+	default void download(File file, String fileName) throws NotFoundException, UnsupportedEncodingException, FileNotFoundException {
+		if (!file.exists() || !file.isFile()) {
+			throw new NotFoundException("Not found file: " + file.getPath());
+		}
+		String suffix = fileName.substring(fileName.lastIndexOf(".") + 1);
+		setContentType(ContentType.get(suffix));
+		addHeader("Content-Disposition", "attachment; filename=" + new String(fileName.getBytes("UTF-8"), "ISO8859_1"));
+		addHeader("Content-Length", String.valueOf(file.length()));
+		write(new StreamBody(new FileInputStream(file)));
+	}
+
 	void write(Body body);
+
 	Body getBody();
 
 }

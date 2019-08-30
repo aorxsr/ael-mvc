@@ -1,8 +1,13 @@
 package org.ael.mvc;
 
+import org.ael.mvc.exception.NotFoundException;
 import org.ael.mvc.server.Server;
 import org.ael.mvc.server.netty.NettyServer;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.UnsupportedEncodingException;
 
 /**
  * @Author: aorxsr
@@ -25,6 +30,17 @@ public class ServerTest {
 				.get("/", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
 				.get("/get", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
 				.get("/a", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
+				.get("/download", handler -> {
+					try {
+						handler.getResponse().download(new File("F:\\back.sql"), "back.sql");
+					} catch (NotFoundException e) {
+						e.printStackTrace();
+					} catch (UnsupportedEncodingException e) {
+						e.printStackTrace();
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					}
+				})
 //				.get("/index.html", handler -> handler.getResponse().html("/template/index.html"))
 				.addResourcesMapping("/statics/", "/statics/")
 				.addResourcesMapping("/view/", "/template/")
