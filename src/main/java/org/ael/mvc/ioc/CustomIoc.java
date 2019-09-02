@@ -16,5 +16,8 @@ public class CustomIoc {
 
     private Map<String, Bean> beans = new ConcurrentHashMap<>(32);
 
+    public void initIOC() {
+        ael.getEnvironment().getString("");
+    }
 
 }
