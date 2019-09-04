@@ -1,4 +1,4 @@
-package org.ael.mvc.ioc.annotation;
+package org.ael.mvc.container.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

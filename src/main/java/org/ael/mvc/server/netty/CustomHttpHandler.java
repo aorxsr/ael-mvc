@@ -10,6 +10,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.internal.StringUtil;
@@ -38,24 +39,18 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, HttpRequest request) throws Exception {
-		EventExecutor executor = ctx.executor();
-		CompletableFuture<HttpRequest> future = CompletableFuture.completedFuture(request);
-
-		future.thenApplyAsync(req -> initRequest(req, ctx), executor)
-				.thenApplyAsync(this::execute, executor)
-				.thenApplyAsync(this::buildResponse, executor)
-				.exceptionally(this::executeHandler)
-				.thenAcceptAsync(res -> writeResponse(ctx, future, res), ctx.channel().eventLoop());
+		try {
+			WebContent webContent = initRequest(request, ctx);
+			webContent = execute(webContent);
+			FullHttpResponse response = buildResponse(webContent);
+			writeResponse(ctx, response);
+		} catch (Exception e) {
+			writeResponse(ctx, new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(e.getMessage().getBytes())));
+		}
 	}
 
-	private void writeResponse(ChannelHandlerContext ctx, CompletableFuture<HttpRequest> future, FullHttpResponse res) {
+	private void writeResponse(ChannelHandlerContext ctx, FullHttpResponse res) {
 		ctx.writeAndFlush(res).addListener(ChannelFutureListener.CLOSE);
-		future.complete(null);
-	}
-
-	private FullHttpResponse executeHandler(Throwable throwable) {
-		throwable.printStackTrace();
-		return new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(throwable.getMessage().getBytes()));
 	}
 
 	private WebContent initRequest(HttpRequest request, ChannelHandlerContext ctx) {
@@ -65,11 +60,9 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
 
 	private WebContent execute(WebContent webContent) {
 		RouteHandler routeHandler = WebContent.ael.getRouteHandler();
-
 		try {
 			return routeHandler.executeHandler(webContent);
 		} catch (ViewNotFoundException e) {
-			// send error
 			webContent.getResponse().text(e.getMessage());
 			return webContent;
 		}
@@ -114,9 +107,9 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
 				ChannelHandlerContext ctx = webContent.getCtx();
 				ctx.write(defaultFullHttpResponse, ctx.voidPromise());
 				ChannelFuture future = ctx.writeAndFlush(byteBuf);
-//				if (!request.isKeepAlive()) {
+				if (!request.isKeepAlive()) {
 					future.addListener(ChannelFutureListener.CLOSE);
-//				}
+				}
 				return null;
 			}
 
