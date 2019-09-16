@@ -1,6 +1,7 @@
 package org.ael.mvc.route;
 
 import cn.hutool.core.util.ClassUtil;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.ael.mvc.Ael;
@@ -142,7 +143,8 @@ public class RouteHandler {
 
 		String uri = request.getUri();
 
-		String key = request.getMethod().toUpperCase() + "#" + uri;
+		String method = request.getMethod();
+		String key = method.toUpperCase() + "#" + uri;
 
 		// 判断是否是 静态资源文件...
 		if (isStatics(uri)) {
@@ -155,6 +157,17 @@ public class RouteHandler {
 				} else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
 					try {
 						route.getMethod().invoke(route.getTarget(), webContent);
+						// 判断参数是否正确
+						// 获取请求参数
+//						if (method.equalsIgnoreCase(HttpMethodConstant.GET_UPPER)) {
+//							// 取URL参数
+//							response.text("GET正在研发中.");
+//						} else if (method.equalsIgnoreCase(HttpMethodConstant.POST_UPPER)) {
+//							// 取body参数
+//							response.text("POST正在研发中.");
+//						} else {
+//							response.text("不支持GET|POST以外的方法.");
+//						}
 					} catch (IllegalAccessException e) {
 						log.info(e.getMessage());
 					} catch (InvocationTargetException e) {
