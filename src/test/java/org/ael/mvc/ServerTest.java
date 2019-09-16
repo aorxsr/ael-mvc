@@ -27,7 +27,7 @@ public class ServerTest {
 	@Test
 	public void test1() throws InstantiationException, IllegalAccessException {
 		new Ael()
-				.get("/", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
+				.get("/param", handler -> handler.getRequest().getParameters().forEach((k, v) -> System.out.println(k + "\t" + v)))
 				.get("/get", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
 				.get("/a", handler -> handler.getResponse().text(handler.getRequest().cookies().toString()))
 				.get("/download", handler -> {

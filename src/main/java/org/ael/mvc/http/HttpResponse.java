@@ -1,5 +1,6 @@
 package org.ael.mvc.http;
 
+import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.http.body.Body;
@@ -67,7 +68,7 @@ public class HttpResponse implements Response {
 
     @Override
     public Cookie getCookie(String name) {
-        Optional<Cookie> cookie = cookies.stream().filter(coo -> coo.getName().equals(name)).findFirst();
+        Optional<Cookie> cookie = cookies.stream().filter(coo -> coo.name().equals(name)).findFirst();
         return cookie.isPresent() ? cookie.get() : null;
     }
 
@@ -84,9 +85,7 @@ public class HttpResponse implements Response {
 
     @Override
     public Cookie setCookie(String name, String value) {
-        Cookie cookie = new Cookie();
-        cookie.setName(name);
-        cookie.setValue(value);
+        Cookie cookie = new DefaultCookie(name, value);
         cookies.add(cookie);
         return cookie;
     }
@@ -98,18 +97,18 @@ public class HttpResponse implements Response {
         } else {
             nettyCookies.clear();
             cookies.forEach(cookie -> {
-                io.netty.handler.codec.http.cookie.Cookie nettyCookie = new DefaultCookie(cookie.getName(), cookie.getValue());
-                nettyCookie.setDomain(cookie.getDomain());
-                Boolean httpOnly = cookie.getHttpOnly();
+                io.netty.handler.codec.http.cookie.Cookie nettyCookie = new DefaultCookie(cookie.name(), cookie.value());
+                nettyCookie.setDomain(cookie.domain());
+                Boolean httpOnly = cookie.isHttpOnly();
                 if (null != httpOnly) {
                     nettyCookie.setHttpOnly(httpOnly);
                 }
-                Long maxAge = cookie.getMaxAge();
+                Long maxAge = cookie.maxAge();
                 if (null != maxAge) {
                     nettyCookie.setMaxAge(maxAge);
                 }
-                nettyCookie.setPath(cookie.getPath());
-                Boolean secure = cookie.getSecure();
+                nettyCookie.setPath(cookie.path());
+                Boolean secure = cookie.isSecure();
                 if (null != secure) {
                     nettyCookie.setSecure(secure);
                 }

@@ -5,6 +5,8 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
@@ -83,8 +85,7 @@ public class HttpRequest implements Request {
 		// cookie init
 		String cookieString = headers.get(COOKIE);
 		if (!StringUtil.isNullOrEmpty(cookieString)) {
-			ServerCookieDecoder.LAX.decode(cookieString).forEach(cookie -> cookies.put(cookie.name(), new Cookie(cookie.name(), cookie.value(), cookie.maxAge(), cookie.domain(), cookie.path(),
-					cookie.isSecure(), cookie.isHttpOnly())));
+			ServerCookieDecoder.LAX.decode(cookieString).forEach(cookie -> cookies.put(cookie.name(), cookie));
 		}
 		// parameter init
 		if (url.contains(WEN)) {
@@ -175,7 +176,7 @@ public class HttpRequest implements Request {
 
 	@Override
 	public Request setCookie(Cookie cookie) {
-		cookies.put(cookie.getName(), cookie);
+		cookies.put(cookie.name(), cookie);
 		return this;
 	}
 

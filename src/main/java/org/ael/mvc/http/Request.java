@@ -2,6 +2,7 @@ package org.ael.mvc.http;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.util.CharsetUtil;
 import lombok.NonNull;
 import org.ael.mvc.constant.HttpConstant;
@@ -55,7 +56,7 @@ public interface Request {
 
 	default String getCookieValue(@NonNull String name) {
 		Cookie cookie = cookies().get(name);
-		return null == cookie ? null : cookie.getValue();
+		return null == cookie ? null : cookie.value();
 	}
 
 	default Cookie getCookie(@NonNull String name) {
