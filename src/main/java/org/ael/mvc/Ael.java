@@ -3,6 +3,8 @@ package org.ael.mvc;
 import lombok.Getter;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
+import org.ael.mvc.container.SimpleContainer;
+import org.ael.mvc.container.bean.Container;
 import org.ael.mvc.handler.StaticsResourcesHandler;
 import org.ael.mvc.http.session.SessionHandler;
 import org.ael.mvc.http.session.SessionManager;
@@ -34,6 +36,8 @@ public class Ael {
 	private Server server = new NettyServer();
 	@Getter
 	private Environment environment = Environment.of();
+	@Getter
+	private SimpleContainer container = new SimpleContainer(this);
 	@Getter
 	private RouteHandler routeHandler = new RouteHandler();
 	@Getter

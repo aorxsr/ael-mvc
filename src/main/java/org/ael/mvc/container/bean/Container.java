@@ -6,56 +6,42 @@ package org.ael.mvc.container.bean;
  */
 public class Container {
 
-	private Object bean;
-	private Class<?> type;
-	private boolean singleton;
-	private boolean fieldHasPrototype;
+    private Object container;
+    private Class<?> type;
+    private boolean singleton;
 
-	public Container(Object bean) {
-		this(bean, bean.getClass());
-	}
+    public Container(Object bean) {
+        this(bean, bean.getClass(), false);
+    }
 
-	public Container(Object bean, Class<?> type) {
-		this.bean = bean;
-		this.type = type;
-		this.singleton = true;
-	}
+    public Container(Object container, Class<?> type, boolean singleton) {
+        this.container = container;
+        this.type = type;
+        this.singleton = singleton;
+    }
 
-	public Container(Object bean, Class<?> type, boolean isSingleton) {
-		this.bean = bean;
-		this.type = type;
-		this.singleton = isSingleton;
-	}
+    public Object getContainer() {
+        return container;
+    }
 
-	public Object getBean() {
-		return bean;
-	}
+    public void setContainer(Object container) {
+        this.container = container;
+    }
 
-	public void setBean(Object bean) {
-		this.bean = bean;
-	}
+    public Class<?> getType() {
+        return type;
+    }
 
-	public Class<?> getType() {
-		return type;
-	}
+    public void setType(Class<?> type) {
+        this.type = type;
+    }
 
-	public void setType(Class<?> type) {
-		this.type = type;
-	}
+    public boolean isSingleton() {
+        return singleton;
+    }
 
-	public boolean isSingleton() {
-		return singleton;
-	}
+    public void setSingleton(boolean isSingleton) {
+        this.singleton = isSingleton;
+    }
 
-	public void setSingleton(boolean isSingleton) {
-		this.singleton = isSingleton;
-	}
-
-	public boolean isFieldHasPrototype() {
-		return fieldHasPrototype;
-	}
-
-	public void setFieldHasPrototype(boolean fieldHasPrototype) {
-		this.fieldHasPrototype = fieldHasPrototype;
-	}
 }

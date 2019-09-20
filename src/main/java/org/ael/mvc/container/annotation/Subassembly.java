@@ -8,16 +8,25 @@ import java.lang.annotation.Target;
 /**
  * @Author: aorxsr
  * @Date: 2019/9/2 15:38
+ * <p>
+ * 类似Bean的形式
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Subassembly {
 
-	/**
-	 * 注释
-	 *
-	 * @return
-	 */
-	String description() default "";
+    /**
+     * 名称
+     *
+     * @return
+     */
+    String name() default "";
+
+    /**
+     * 注释
+     *
+     * @return
+     */
+    String description() default "";
 
 }

@@ -21,68 +21,68 @@ import java.util.concurrent.TimeUnit;
  */
 public class NettyServer implements Server {
 
-	private ServerBootstrap serverBootstrap;
+    private ServerBootstrap serverBootstrap;
 
-	private EventLoopGroup boss;
-	private EventLoopGroup work;
+    private EventLoopGroup boss;
+    private EventLoopGroup work;
 
-	private EventLoop scheduleEventLoop;
+    private EventLoop scheduleEventLoop;
 
-	private ChannelFuture future;
+    private ChannelFuture future;
 
-	private Ael ael;
+    private Ael ael;
 
-	@Override
-	public void start(Ael ael) {
-		this.ael = ael;
-		init();
+    @Override
+    public void start(Ael ael) {
+        this.ael = ael;
+        init();
+        //
+        ael.getContainer().initContainer();
 
-		WebContent.setAel(ael);
+        WebContent.setAel(ael);
 
-		try {
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				this.stop();
-			}));
+        try {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> this.stop()));
 
-			startServer();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-	}
+            startServer();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
-	private void startServer() throws InterruptedException {
-		future = serverBootstrap.channel(NioServerSocketChannel.class)
-				.childHandler(new InitialHandler())
-				.bind(7788)
-				.sync();
+    private void startServer() throws InterruptedException {
+        future = serverBootstrap.channel(NioServerSocketChannel.class)
+                .childHandler(new InitialHandler())
+                .bind(7788)
+                .sync();
 
-		System.out.println("open in browser http://127.0.0.1:7788 ");
+        System.out.println("open in browser http://127.0.0.1:7788 ");
 
-		future.channel().closeFuture().sync();
-	}
+        future.channel().closeFuture().sync();
+    }
 
-	private void init() {
-		ael.getEnvironment().initConfig(ael.getEnvironment().getString(EnvironmentConstant.ENVIRONMENT_FILE));
+    private void init() {
+        ael.getEnvironment().initConfig(ael.getEnvironment().getString(EnvironmentConstant.ENVIRONMENT_FILE));
 
-		boss = new NioEventLoopGroup();
-		work = new NioEventLoopGroup();
+        boss = new NioEventLoopGroup();
+        work = new NioEventLoopGroup();
 
-		scheduleEventLoop = new DefaultEventLoop();
-		scheduleEventLoop.scheduleAtFixedRate(new SessionClearHandler(ael.getSessionHandler().getSessionManager()), 1000, 1000, TimeUnit.MILLISECONDS);
+        scheduleEventLoop = new DefaultEventLoop();
+        scheduleEventLoop.scheduleAtFixedRate(new SessionClearHandler(ael.getSessionHandler().getSessionManager()), 1000, 1000, TimeUnit.MILLISECONDS);
 
-		serverBootstrap = new ServerBootstrap();
-		// 初始化配置
-		serverBootstrap.group(work, boss);
-	}
+        serverBootstrap = new ServerBootstrap();
+        // 初始化配置
+        serverBootstrap.group(work, boss);
+    }
 
-	@Override
-	public void stop() {
-		if (!work.isShutdown()) {
-			work.shutdownGracefully();
-		}
-		if (!boss.isShutdown()) {
-			boss.shutdownGracefully();
-		}
-	}
+    @Override
+    public void stop() {
+        if (!work.isShutdown()) {
+            work.shutdownGracefully();
+        }
+        if (!boss.isShutdown()) {
+            boss.shutdownGracefully();
+        }
+    }
 
 }

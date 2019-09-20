@@ -10,24 +10,18 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
-import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.internal.StringUtil;
-import lombok.var;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.*;
 import org.ael.mvc.http.body.BodyWrite;
 import org.ael.mvc.http.body.ViewBody;
-import org.ael.mvc.route.RouteHandler;
-import org.ael.mvc.template.ModelAndView;
 
 import java.util.Date;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -57,13 +51,7 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
     }
 
     private WebContent execute(WebContent webContent) {
-        RouteHandler routeHandler = WebContent.ael.getRouteHandler();
-        try {
-            return routeHandler.executeHandler(webContent);
-        } catch (ViewNotFoundException e) {
-            webContent.getResponse().text(e.getMessage());
-            return webContent;
-        }
+        return WebContent.ael.getRouteHandler().executeHandler(webContent);
     }
 
     private FullHttpResponse buildResponse(WebContent webContent) {
@@ -122,9 +110,8 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
         });
     }
 
-    private void appendResponseCookie(Set<io.netty.handler.codec.http.cookie.Cookie> cookieSet, FullHttpResponse response) {
-        cookieSet.forEach(cookie -> response.headers().add(HttpConstant.SET_COOKIE,
-                io.netty.handler.codec.http.cookie.ServerCookieEncoder.LAX.encode(cookie)));
+    private void appendResponseCookie(Set<Cookie> cookieSet, FullHttpResponse response) {
+        cookieSet.forEach(cookie -> response.headers().add(HttpConstant.SET_COOKIE, ServerCookieEncoder.LAX.encode(cookie)));
     }
 
 }

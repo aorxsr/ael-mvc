@@ -137,7 +137,7 @@ public class RouteHandler {
 
 	}
 
-	public WebContent executeHandler(WebContent webContent) throws ViewNotFoundException {
+	public WebContent executeHandler(WebContent webContent) {
 		Request request = webContent.getRequest();
 		Response response = webContent.getResponse();
 

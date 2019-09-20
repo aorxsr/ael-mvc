@@ -28,7 +28,7 @@ public class StaticsResourcesHandler {
 
 	private Map<String, String> MAPPING_CACHE = new HashMap<>(16);
 
-	public WebContent rander(WebContent webContent) throws ViewNotFoundException {
+	public WebContent rander(WebContent webContent) {
 		// 去除？后面的, 然后转换为
 		Request request = webContent.getRequest();
 		String uri = request.getUri();
@@ -47,11 +47,6 @@ public class StaticsResourcesHandler {
 		// 判断结尾是否是.html 或者 .
 		if (uri.contains("?")) {
 			uri = uri.substring(0, uri.indexOf("?"));
-		}
-
-		if (uri.contains(".")) {
-			String suffix = uri.substring(uri.lastIndexOf(".") + 1);
-			webContent.getResponse().setContentType(ContentType.get(suffix));
 		}
 
 		AelTemplate aelTemplate = WebContent.ael.getAelTemplate();
