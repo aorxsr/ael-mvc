@@ -164,7 +164,7 @@ public class RouteHandler {
                 } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
                     try {
                         if (HttpMethodConstant.GET_UPPER.equals(method.toUpperCase())) {
-                            invokeGet(request, response, webContent, route);
+//                            invokeGet(request, response, webContent, route);
                         } else if (HttpMethodConstant.POST_UPPER.equals(method.toUpperCase())) {
 
                         } else {

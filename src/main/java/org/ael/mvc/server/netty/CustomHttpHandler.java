@@ -37,7 +37,7 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
         try {
             writeResponse(ctx, buildResponse(execute(initRequest(request, ctx))));
         } catch (Exception e) {
-            ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(e.getMessage().getBytes()))).addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(e.getMessage().getBytes())))/*.addListener(ChannelFutureListener.CLOSE)*/;
         }
     }
 
