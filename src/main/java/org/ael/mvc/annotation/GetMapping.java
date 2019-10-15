@@ -17,4 +17,6 @@ public @interface GetMapping {
 
 	String description() default "";
 
+	String contentType() default "text/html";
+
 }

@@ -21,6 +21,8 @@ public class Route {
 	private Object target;
 	private Method method;
 
+	private String contentType;
+
 	private int routeType;
 
 	private RouteFunctionHandler routeFunctionHandler;

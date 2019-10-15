@@ -28,6 +28,8 @@ public interface Request {
 
 	Map<String, String> getPathParams();
 
+	Object getPathParam(String name);
+
 	Map<String, List<String>> getParameters();
 
 	boolean isUseGZIP();
