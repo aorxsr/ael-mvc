@@ -5,6 +5,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerExpectContinueHandler;
+import io.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  * @Author: aorxsr
@@ -23,6 +24,8 @@ public class InitialHandler extends ChannelInitializer<SocketChannel> {
 		pipeline.addLast(new HttpServerExpectContinueHandler());
 		// 聚合Http请求
 		pipeline.addLast(new ConversionsRequest());
+		// 但是不占用过多的内存，防止发生java内存溢出错误
+		pipeline.addLast(new ChunkedWriteHandler());
 		// 自己的业务
 		pipeline.addLast(new CustomHttpHandler());
 	}

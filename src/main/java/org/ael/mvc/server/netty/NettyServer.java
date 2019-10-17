@@ -41,9 +41,10 @@ public class NettyServer implements Server {
 
         WebContent.setAel(ael);
 
+        ael.getAelTemplate().init(ael);
+
         try {
             Runtime.getRuntime().addShutdownHook(new Thread(() -> this.stop()));
-
             startServer();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -62,7 +63,9 @@ public class NettyServer implements Server {
     }
 
     private void init() {
-        ael.getEnvironment().initConfig(ael.getEnvironment().getString(EnvironmentConstant.ENVIRONMENT_FILE));
+        ael.getEnvironment().initConfig();
+
+        ael.getRouteHandler().initRouteHandler(ael);
 
         boss = new NioEventLoopGroup();
         work = new NioEventLoopGroup();

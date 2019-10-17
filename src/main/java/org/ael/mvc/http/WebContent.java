@@ -17,6 +17,7 @@ public class WebContent {
     @Getter
     private Request request;
     @Getter
+    @Setter
     private Response response;
     @Getter
     private ChannelHandlerContext ctx;

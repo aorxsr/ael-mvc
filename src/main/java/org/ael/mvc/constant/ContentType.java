@@ -39,6 +39,10 @@ public interface ContentType {
 		put("mpeg", "video/mpeg");
 		put("mpg", "video/mpeg");
 
+		put("ttf", "application/x-font-ttf");
+		put("woff", "application/x-font-ttf");
+		put("woff2", "application/x-font-ttf");
+
 		put("wmv", "video/x-ms-wmv");
 		put("avi", "video/x-msvideo");
 
