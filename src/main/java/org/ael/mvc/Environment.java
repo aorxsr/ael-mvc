@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -30,6 +31,10 @@ public class Environment {
 
     public static Environment of() {
         return new Environment();
+    }
+
+    public boolean containsKey(String name) {
+        return properties.containsKey(name);
     }
 
     public Environment setProperty(String key, String value) {
@@ -55,6 +60,10 @@ public class Environment {
 
     public String getString(String name, String defaultValue) {
         return properties.containsKey(name) ? properties.get(name).toString() : defaultValue;
+    }
+
+    public List<String> getListString(String name) {
+        return properties.containsKey(name) ? (List<String>) properties.get(name) : null;
     }
 
     public void initConfig() {

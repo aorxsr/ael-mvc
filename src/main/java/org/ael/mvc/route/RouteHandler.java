@@ -1,19 +1,16 @@
 package org.ael.mvc.route;
 
-import cn.hutool.core.util.ClassUtil;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.ael.mvc.Ael;
 import org.ael.mvc.annotation.*;
 import org.ael.mvc.commons.StringUtils;
-import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.constant.RouteTypeConstant;
 import org.ael.mvc.container.exception.RequestParamRequiredException;
-import org.ael.mvc.exception.ViewNotFoundException;
+import org.ael.mvc.handler.init.InitHandler;
 import org.ael.mvc.http.Request;
 import org.ael.mvc.http.Response;
 import org.ael.mvc.http.WebContent;
@@ -26,7 +23,6 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -34,11 +30,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Date: 2019/7/29 11:57
  */
 @Slf4j
-public class RouteHandler {
+@Configuration(order = 2)
+public class RouteHandler implements InitHandler {
 
     private Ael ael;
+    private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Route> routeHandlers = new ConcurrentHashMap<>();
 
-    public void initRouteHandler(Ael ael) {
+    @Override
+    public void init(Ael ael) {
         this.ael = ael;
         try {
             scanLocalCLass();
@@ -49,21 +49,8 @@ public class RouteHandler {
         }
     }
 
-    private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
-
-    private ConcurrentHashMap<String, Route> routeHandlers = new ConcurrentHashMap<>();
-
     public void scanLocalCLass() throws IllegalAccessException, InstantiationException {
-        String scanPackage = ael.getEnvironment().getString(EnvironmentConstant.SCAN_PACKAGE);
-        if (StringUtils.isEmpty(scanPackage)) {
-            scanPackage = ael.getStartClass().getPackage().getName();
-            if (StringUtils.isEmpty(scanPackage)) {
-                return;
-            }
-        }
-
-        Set<Class<?>> classes = ClassUtil.scanPackage(scanPackage);
-        for (Class<?> clazz : classes) {
+        for (Class<?> clazz : ael.getScanClass()) {
             Controller controller = clazz.getAnnotation(Controller.class);
             if (null == controller) {
                 continue;
@@ -82,7 +69,6 @@ public class RouteHandler {
             } else {
                 controllerUrl = getMapping.value();
             }
-
             // 获取所有方法
             Method[] methods = clazz.getMethods();
             for (Method method : methods) {
