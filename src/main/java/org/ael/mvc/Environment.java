@@ -2,7 +2,9 @@ package org.ael.mvc;
 
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.ael.mvc.commons.StringUtils;
 import org.ael.mvc.constant.EnvironmentConstant;
+import org.ael.mvc.container.ClassPathFileConstant;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,31 +58,44 @@ public class Environment {
     }
 
     public void initConfig() {
-        String APPLICATION = properties.getProperty(EnvironmentConstant.ENVIRONMENT_FILE);
         try {
-            if (StringUtil.isNullOrEmpty(APPLICATION)) {
-                APPLICATION = "application.properties";
-                // default load application.properties
-                File appFile = new File(APPLICATION);
-                if (appFile.exists()) {
-                    properties.load(new FileInputStream(appFile));
-                } else {
-                    InputStream resourceAsStream = classLoader.getResourceAsStream(APPLICATION);
-                    if (null != resourceAsStream) {
-                        properties.load(resourceAsStream);
-                        loadActiveFile(APPLICATION);
-                    }
-                }
+            String APPLICATION = properties.getProperty(EnvironmentConstant.ENVIRONMENT_FILE);
+            InputStream inputStream;
+            if (StringUtils.isEmpty(APPLICATION)) {
+                inputStream = ClassPathFileConstant.getClassPathFile("/app.properties");
             } else {
-				InputStream ins = classLoader.getResourceAsStream(APPLICATION);
-				if (null == ins) {
-					ins = this.getClass().getResourceAsStream(APPLICATION);
-				}
-				properties.load(ins);
-                loadActiveFile(APPLICATION);
+                // 读取配置
+                inputStream = ClassPathFileConstant.getClassPathFile(APPLICATION);
+            }
+            if (null == inputStream) {
+                return;
+            } else {
+                properties.load(inputStream);
+            }
+            // load active
+            readActive();
+        } catch (IOException e) {
+            log.error("load config fail: {}", e);
+        }
+    }
+
+    private void readActive() {
+        String active = properties.getProperty(EnvironmentConstant.ACTIVE_NAME);
+        try {
+            InputStream inputStream = null;
+            if (StringUtils.isEmpty(active)) {
+                return;
+            } else {
+                // 读取配置
+                inputStream = ClassPathFileConstant.getClassPathFile(active);
+                if (null == inputStream) {
+                    return;
+                } else {
+                    properties.load(inputStream);
+                }
             }
         } catch (IOException e) {
-            log.error(" env fileName " + APPLICATION + " not found.");
+            log.error("load config fail: {}", e);
         }
     }
 

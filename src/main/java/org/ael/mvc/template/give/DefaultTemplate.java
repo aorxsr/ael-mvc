@@ -1,15 +1,10 @@
 package org.ael.mvc.template.give;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import org.ael.mvc.Ael;
 import org.ael.mvc.Environment;
 import org.ael.mvc.constant.ContentType;
 import org.ael.mvc.constant.EnvironmentConstant;
-import org.ael.mvc.constant.HttpConstant;
+import org.ael.mvc.container.ClassPathFileConstant;
 import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.WebContent;
 import org.ael.mvc.http.body.ByteBufBody;
@@ -26,32 +21,18 @@ import java.io.*;
  */
 public class DefaultTemplate implements AelTemplate {
 
-    private static final ClassLoader classLoader = DefaultTemplate.class.getClassLoader();
-
-    private static String PREFIX = "";
-    private static String SUFFIX = "";
-
     @Override
     public WebContent render(ModelAndView modelAndView, WebContent webContent) {
         String view = modelAndView.getView();
-        InputStream resourceAsStream = classLoader.getResourceAsStream(view);
-        if (null == resourceAsStream) {
-            resourceAsStream = this.getClass().getResourceAsStream(view);
-        }
+        InputStream resourceAsStream = ClassPathFileConstant.getClassPathFile(view);
         if (null == resourceAsStream) {
             throw new ViewNotFoundException(view + " view not found ... ");
         } else {
-//            String readFile = readFile(resourceAsStream);
-//            webContent.getResponse().text(readFile);
-//            if (view.contains(".")) {
-                String suffix = view.substring(view.lastIndexOf(".") + 1);
-//                webContent.getResponse().setContentType(ContentType.get(suffix));
-//            }
-
             try {
                 ReadStaticResources resources = new ReadStaticResources(resourceAsStream);
                 webContent.getResponse().write(new ByteBufBody(resources.getByteBuf()));
                 webContent.getResponse().addHeader("Content-Length", resources.getSizeString());
+                String suffix = view.substring(view.lastIndexOf(".") + 1);
                 webContent.getResponse().setContentType(ContentType.get(suffix));
             } catch (IOException e) {
                 e.printStackTrace();
@@ -67,6 +48,11 @@ public class DefaultTemplate implements AelTemplate {
             return webContent;
         }
     }
+
+    private static String PREFIX = "";
+    private static String SUFFIX = "";
+
+    private final static ClassLoader classLoader = DefaultTemplate.class.getClassLoader();
 
     @Override
     public void init(Ael ael) {
