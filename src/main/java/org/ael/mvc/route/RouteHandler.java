@@ -55,9 +55,9 @@ public class RouteHandler {
 
     public void scanLocalCLass() throws IllegalAccessException, InstantiationException {
         String scanPackage = ael.getEnvironment().getString(EnvironmentConstant.SCAN_PACKAGE);
-        if (StringUtils.isNotEmpty(scanPackage)) {
+        if (StringUtils.isEmpty(scanPackage)) {
             scanPackage = ael.getStartClass().getPackage().getName();
-            if (StringUtil.isNullOrEmpty(scanPackage)) {
+            if (StringUtils.isEmpty(scanPackage)) {
                 return;
             }
         }
