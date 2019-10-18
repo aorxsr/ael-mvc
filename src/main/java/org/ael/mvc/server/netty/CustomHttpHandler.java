@@ -92,6 +92,7 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
                 DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()));
                 response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
                 ChannelHandlerContext ctx = webContent.getCtx();
+                // Promise是做数据过程中的数据保证
                 ctx.write(defaultFullHttpResponse, ctx.voidPromise());
                 ChannelFuture future = ctx.writeAndFlush(byteBuf);
                 if (!request.isKeepAlive()) {
