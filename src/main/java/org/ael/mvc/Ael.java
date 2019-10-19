@@ -32,7 +32,7 @@ public class Ael {
 
     private Server server = new NettyServer();
 
-    private Environment environment = Environment.of();
+    private Environment environment = new Environment();
 
     private SimpleContainer container = new SimpleContainer(this);
 
@@ -61,12 +61,12 @@ public class Ael {
     }
 
     public Ael setSessionKey(String sessionKey) {
-        environment.setProperty(EnvironmentConstant.SESSION_KEY, sessionKey);
+        environment.put(EnvironmentConstant.SESSION_KEY, sessionKey);
         return this;
     }
 
     public Ael setFilePath(String filePath) {
-        environment.setProperty(EnvironmentConstant.ENVIRONMENT_FILE, filePath);
+        environment.put(EnvironmentConstant.ENVIRONMENT_FILE, filePath);
         return this;
     }
 

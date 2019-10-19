@@ -1,123 +1,156 @@
 package org.ael.mvc;
 
-import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.ael.mvc.commons.StringUtils;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.container.ClassPathFileConstant;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @Author: aorxsr
  * @Date: 2019/7/16 18:25
  */
 @Slf4j
-public class Environment {
+public class Environment implements Map<String, Object> {
 
-    private ClassLoader classLoader = Environment.class.getClassLoader();
+    /**
+     * 存放环境信息
+     */
+    private Map<String, Object> map = null;
 
-    private Properties properties = new Properties();
-
-    private Environment() {
-        properties.setProperty(EnvironmentConstant.HTTP_ZIP, String.valueOf(false));
+    public Environment() {
+        map = new HashMap<>(16);
     }
 
-    public static Environment of() {
-        return new Environment();
+    @Override
+    public int size() {
+        return map.size();
     }
 
-    public boolean containsKey(String name) {
-        return properties.containsKey(name);
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
     }
 
-    public Environment setProperty(String key, String value) {
-        properties.setProperty(key, value);
-        return this;
+    @Override
+    public boolean containsKey(Object key) {
+        return map.containsKey(key);
     }
 
-    public void removeProperty(String key) {
-        properties.remove(key);
+    @Override
+    public boolean containsValue(Object value) {
+        return map.containsValue(value);
     }
 
-    public boolean isProperty(String name) {
-        return properties.containsKey(name);
+    @Override
+    public Object get(Object key) {
+        return map.get(key);
     }
 
-    public boolean getBoolean(String name) {
-        return properties.containsKey(name) ? (boolean) properties.get(name) : false;
+    @Override
+    public Object put(String key, Object value) {
+        return map.put(key, value);
     }
 
-    public String getString(String name) {
-        return properties.containsKey(name) ? properties.get(name).toString() : null;
+    @Override
+    public Object remove(Object key) {
+        return map.remove(key);
     }
 
-    public String getString(String name, String defaultValue) {
-        return properties.containsKey(name) ? properties.get(name).toString() : defaultValue;
+    @Override
+    public void putAll(Map<? extends String, ?> m) {
+        map.putAll(m);
     }
 
-    public List<String> getListString(String name) {
-        return properties.containsKey(name) ? (List<String>) properties.get(name) : null;
+    @Override
+    public void clear() {
+        map.clear();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return map.keySet();
+    }
+
+    @Override
+    public Collection<Object> values() {
+        return map.values();
+    }
+
+    @Override
+    public Set<Entry<String, Object>> entrySet() {
+        return map.entrySet();
+    }
+
+    /**
+     * 根据Key获取String值
+     *
+     * @param key
+     * @return
+     */
+    public String getString(String key) {
+        return map.containsKey(key) ? map.get(key).toString() : null;
+    }
+
+    /**
+     * 根据Key获取String值
+     *
+     * @param key
+     * @return
+     */
+    public String getString(String key, String defaultValue) {
+        return map.containsKey(key) ? map.get(key).toString() : defaultValue;
+    }
+
+    public boolean getBoolean(String key, boolean b) {
+        return map.containsKey(key) ? Boolean.valueOf(map.get(key).toString()) : b;
+    }
+
+    public List getList(String key, List defaultValue) {
+        return map.containsKey(key) ? arrayToList(map.get(key).toString().split(","))  : defaultValue;
     }
 
     public void initConfig() {
-        try {
-            String APPLICATION = properties.getProperty(EnvironmentConstant.ENVIRONMENT_FILE);
-            InputStream inputStream;
-            if (StringUtils.isEmpty(APPLICATION)) {
-                inputStream = ClassPathFileConstant.getClassPathFile("/app.properties");
-            } else {
-                // 读取配置
-                inputStream = ClassPathFileConstant.getClassPathFile(APPLICATION);
-            }
-            if (null == inputStream) {
-                return;
-            } else {
-                properties.load(inputStream);
-            }
-            // load active
-            readActive();
-        } catch (IOException e) {
-            log.error("load config fail: {}", e);
-        }
-    }
-
-    private void readActive() {
-        String active = properties.getProperty(EnvironmentConstant.ACTIVE_NAME);
-        try {
-            InputStream inputStream = null;
-            if (StringUtils.isEmpty(active)) {
-                return;
-            } else {
-                // 读取配置
-                inputStream = ClassPathFileConstant.getClassPathFile(active);
-                if (null == inputStream) {
-                    return;
-                } else {
-                    properties.load(inputStream);
-                }
-            }
-        } catch (IOException e) {
-            log.error("load config fail: {}", e);
-        }
-    }
-
-    private void loadActiveFile(String filePath) throws IOException {
-        String son = properties.getProperty(EnvironmentConstant.ACTIVE_NAME);
-        if (StringUtil.isNullOrEmpty(son)) {
+        // 加载配置文件
+        InputStream classPathFile = ClassPathFileConstant.getClassPathFile("app.properties");
+        if (null == classPathFile) {
             return;
-        } else {
-            // load son file
-            String prifix = filePath.substring(0, filePath.lastIndexOf('.'));
-            filePath = prifix + "-" + son + ".properties";
-            properties.load(classLoader.getResourceAsStream(filePath));
         }
+        Properties properties = new Properties();
+        try {
+            properties.load(classPathFile);
+            properties.forEach((k, v) -> {
+                map.put(k.toString(), v);
+            });
+            classPathFile.close();
+            // 判断子配置文件
+            if (properties.containsKey(EnvironmentConstant.ACTIVE_NAME)) {
+                String active = properties.getProperty(EnvironmentConstant.ACTIVE_NAME);
+                classPathFile = ClassPathFileConstant.getClassPathFile(active);
+                if (null == classPathFile) {
+                    return;
+                }
+                properties.clear();
+                properties.load(classPathFile);
+                properties.forEach((k, v) -> {
+                    map.put(k.toString(), v);
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public  List<String> arrayToList(String[] array) {
+        List<String> arrayList = new ArrayList<>();
+        if (array.length != 0) {
+            for (String s : array) {
+                arrayList.add(s);
+            }
+        }
+        return arrayList;
     }
 
 }

@@ -162,7 +162,7 @@ public class HttpRequest implements Request {
 
 	@Override
 	public boolean isUseGZIP() {
-		if (WebContent.ael.getEnvironment().getBoolean(EnvironmentConstant.HTTP_ZIP)) {
+		if (WebContent.ael.getEnvironment().getBoolean(EnvironmentConstant.HTTP_ZIP, false)) {
 			return false;
 		}
 		// 判断是否有 gzip 标识

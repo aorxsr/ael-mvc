@@ -22,6 +22,7 @@ import org.ael.mvc.server.Server;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -77,16 +78,13 @@ public class NettyServer implements Server {
         // environment 初始化
         ael.getEnvironment().initConfig();
 
-        String scanPackage = ael.getEnvironment().getString(EnvironmentConstant.SCAN_PACKAGE);
-        if (StringUtils.isEmpty(scanPackage) && null != ael.getStartClass()) {
-            scanPackage = ael.getStartClass().getPackage().getName();
-        }
-        if (StringUtils.isNotEmpty(scanPackage)) {
-            Set<Class<?>> classes = ClassUtil.scanPackage(scanPackage);
+        List<String> scanPackage = ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList());
+        scanPackage.add("org.ael.mvc");
+        scanPackage.forEach(scan -> {
+            Set<Class<?>> classes = ClassUtil.scanPackage(scan);
             ael.addScanClass(RouteHandler.class);
-            // 设置给ael
-            ael.setScanClass(classes);
-        }
+            ael.addScanClass(classes);
+        });
 
         // 获取所有 @Configuration 类
         Class<Configuration> configuration = Configuration.class;
@@ -131,7 +129,7 @@ public class NettyServer implements Server {
     private boolean configHandler(Class<Configuration> configuration, Class<InitHandler> initHandlerClass, Class<?> aClass) {
         if (aClass.isAnnotationPresent(configuration)) {
             try {
-                aClass.asSubclass(initHandlerClass);
+                Class<? extends InitHandler> subclass = aClass.asSubclass(initHandlerClass);
                 return true;
             } catch (Exception e) {
                 return false;

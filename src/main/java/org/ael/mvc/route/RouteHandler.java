@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Configuration(order = 2)
-public class RouteHandler implements InitHandler {
+public class RouteHandler extends InitHandler {
 
     private Ael ael;
     private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
@@ -47,6 +47,8 @@ public class RouteHandler implements InitHandler {
         } catch (InstantiationException e) {
             log.error(e.getMessage());
         }
+        WebContent.ael = this.ael;
+        WebContent.ael.setRouteHandler(this);
     }
 
     public void scanLocalCLass() throws IllegalAccessException, InstantiationException {
@@ -141,10 +143,10 @@ public class RouteHandler implements InitHandler {
 
         // 判断是否是 静态资源文件...
         if (isStatics(uri)) {
-            webContent = ael.getStaticsResourcesHandler().rander(webContent);
+            webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
         } else {
-            if (routeHandlers.containsKey(key)) {
-                Route route = routeHandlers.get(key);
+            if (WebContent.ael.getRouteHandler().routeHandlers.containsKey(key)) {
+                Route route = WebContent.ael.getRouteHandler().routeHandlers.get(key);
                 if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
                     route.getRouteFunctionHandler().handler(webContent);
                 } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
@@ -277,7 +279,7 @@ public class RouteHandler implements InitHandler {
     }
 
     private boolean isStatics(String uri) {
-        for (String resourcesHandler : ael.getStaticsResourcesHandler().getResourcesHandlers()) {
+        for (String resourcesHandler : WebContent.ael.getStaticsResourcesHandler().getResourcesHandlers()) {
             if (uri.startsWith(resourcesHandler)) {
                 return true;
             }
