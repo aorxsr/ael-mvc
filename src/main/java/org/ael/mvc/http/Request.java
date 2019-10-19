@@ -36,6 +36,10 @@ public interface Request {
 
 	Session getSession();
 
+	boolean isASESSION();
+
+	void setASESSION(boolean asession);
+
 	default String contentType() {
 		String contentType = header(HttpConstant.CONTENT_TYPE);
 		return null != contentType ? contentType : "Unknown";

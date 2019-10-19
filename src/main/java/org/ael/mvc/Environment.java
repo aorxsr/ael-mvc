@@ -7,6 +7,7 @@ import org.ael.mvc.container.ClassPathFileConstant;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * @Author: aorxsr
@@ -82,6 +83,10 @@ public class Environment implements Map<String, Object> {
     @Override
     public Set<Entry<String, Object>> entrySet() {
         return map.entrySet();
+    }
+
+    public Map<String, Object> getMap() {
+        return map;
     }
 
     /**

@@ -16,8 +16,6 @@ public interface HttpConstant {
 	String COOKIE              = "Cookie";
 	String HOST                = "Host";
 
-	String DEFAULT_SESSION_KEY = "ael_session";
-
 	AsciiString SET_COOKIE       = AsciiString.cached("Set-Cookie");
 
 	/*****response********/

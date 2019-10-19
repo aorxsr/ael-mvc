@@ -29,6 +29,7 @@ public class DefaultTemplate implements AelTemplate {
             throw new ViewNotFoundException(view + " view not found ... ");
         } else {
             try {
+                webContent.getRequest().setASESSION(false);
                 ReadStaticResources resources = new ReadStaticResources(resourceAsStream);
                 webContent.getResponse().write(new ByteBufBody(resources.getByteBuf()));
                 webContent.getResponse().addHeader("Content-Length", resources.getSizeString());

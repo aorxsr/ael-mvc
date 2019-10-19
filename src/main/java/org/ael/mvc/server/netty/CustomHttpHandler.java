@@ -61,11 +61,13 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
         Session session = request.getSession();
         if (null != session) {
             // 获取Cookie
-            Cookie cookie = request.getCookie(WebContent.ael.getEnvironment().getString(EnvironmentConstant.SESSION_KEY, EnvironmentConstant.DEFAULT_SESSION_KEY));
-            if (null == cookie) {
-                response.setCookie(new DefaultCookie(HttpConstant.DEFAULT_SESSION_KEY, session.getId()));
-            } else {
-                response.setCookie(cookie);
+            if (request.isASESSION()) {
+                Cookie cookie = request.getCookie(WebContent.ael.getEnvironment().getString(EnvironmentConstant.SESSION_KEY, EnvironmentConstant.DEFAULT_SESSION_KEY));
+                if (null == cookie) {
+                    response.setCookie(new DefaultCookie(EnvironmentConstant.DEFAULT_SESSION_KEY, session.getId()));
+                } else {
+                    response.setCookie(cookie);
+                }
             }
         }
 
