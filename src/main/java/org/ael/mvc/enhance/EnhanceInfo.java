@@ -4,6 +4,7 @@ import lombok.Data;
 import org.ael.mvc.constant.HttpMethod;
 
 import java.lang.reflect.Method;
+import java.util.regex.Pattern;
 
 /**
  * @author aorxsr
@@ -14,6 +15,7 @@ public class EnhanceInfo {
 
     private HttpMethod httpMethod;
     private Object target;
+    private Pattern pattern;
 
     private Method beforeMethod;
     private Method afterMethod;

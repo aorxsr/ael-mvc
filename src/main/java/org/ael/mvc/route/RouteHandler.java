@@ -146,6 +146,7 @@ public class RouteHandler extends AbstractInitHandler {
             webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
         } else {
             if (WebContent.ael.getRouteHandler().routeHandlers.containsKey(key)) {
+                // enhance constant
                 Route route = WebContent.ael.getRouteHandler().routeHandlers.get(key);
                 if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
                     route.getRouteFunctionHandler().handler(webContent);

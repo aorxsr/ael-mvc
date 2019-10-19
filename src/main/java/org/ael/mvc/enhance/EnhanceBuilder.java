@@ -10,10 +10,10 @@ import org.ael.mvc.enhance.annotation.EnhanceEnable;
 import org.ael.mvc.handler.init.AbstractInitHandler;
 import org.ael.mvc.http.WebContent;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author aorxsr
@@ -86,11 +86,67 @@ public class EnhanceBuilder extends AbstractInitHandler {
                 enhanceInfo.setAfterMethod(afterMethod);
             }
             if (hasAdd) {
+                // 生成正则表达式
+
+                String regex = url;
+                regex.replaceAll("*", "");
+
+//                int indexOf = url.indexOf("*");
+//                // 没有任何一个* 的
+//                if (-1 == indexOf) {
+//                    String regex = url;
+//                    enhanceInfo.setPattern(Pattern.compile(regex));
+//                } else {
+//                    // 有 * 的
+//                    // 获取下一个判断是否还是 *
+//                    int i = url.indexOf("*", indexOf + 1);
+//                    if (-1 == i) {
+//                        // 仅此一个
+//                        String regex = url + "[A-Za-z0-9]";
+//                        enhanceInfo.setPattern(Pattern.compile(regex));
+//                    } else {
+//                        // 判断是否是当前位置的
+//                        if (i == indexOf + 1) {
+//                            // 俩*
+//                            String regex = url + "[A-Za-z0-9]*";
+//                            enhanceInfo.setPattern(Pattern.compile(regex));
+//                        }
+//                    }
+//                }
                 enhanceInfos.add(enhanceInfo);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+//    public String regexBuilder(String url) {
+//
+//
+//
+//    }
+//
+//    public String regex(int startIndex, String url) {
+//        // 从开始行截取
+//        String newUrl = url.substring(startIndex);
+//        // 判断 *
+//        int indexOf = newUrl.indexOf("*");
+//
+//        String u = url.substring(startIndex, indexOf);
+//
+//        if (-1 == indexOf) {
+//            return newUrl;
+//        } else {
+//            // 判断下一个是否是 *
+//            String substring = newUrl.substring(indexOf);
+//            int index = substring.indexOf("*");
+//            if (index == indexOf + 1) {
+//                //
+//                return u + "[A-Za-z0-9]*";
+//            } else {
+//                return u + "[A-Za-z0-9]";
+//            }
+//        }
+//    }
 
 }
