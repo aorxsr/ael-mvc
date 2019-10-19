@@ -4,6 +4,7 @@ import lombok.Data;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.container.SimpleContainer;
+import org.ael.mvc.enhance.EnhanceHandler;
 import org.ael.mvc.handler.StaticsResourcesHandler;
 import org.ael.mvc.http.session.SessionHandler;
 import org.ael.mvc.http.session.SessionManager;
@@ -42,7 +43,9 @@ public class Ael {
 
     private SessionHandler sessionHandler = new SessionHandler(sessionManager);
 
-    private Set<Class<?>> scanClass = new HashSet<>();
+    private Set<Class<?>> scanClass = new LinkedHashSet<>(16);
+
+    private EnhanceHandler enhanceHandler;
 
     /**
      * 用于初始化
