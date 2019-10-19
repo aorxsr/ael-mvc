@@ -151,26 +151,7 @@ public class RouteHandler extends AbstractInitHandler {
                     route.getRouteFunctionHandler().handler(webContent);
                 } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
                     try {
-                        if (HttpMethodConstant.GET_UPPER.equals(method.toUpperCase())) {
-//                            invokeGet(request, response, webContent, route);
-                        } else if (HttpMethodConstant.POST_UPPER.equals(method.toUpperCase())) {
-
-                        } else {
-                            response.text("不支持GET和POST以外的方法!");
-                        }
-
                         route.getMethod().invoke(route.getTarget(), webContent);
-                        // 判断参数是否正确
-                        // 获取请求参数
-//						if (method.equalsIgnoreCase(HttpMethodConstant.GET_UPPER)) {
-//							// 取URL参数
-//							response.text("GET正在研发中.");
-//						} else if (method.equalsIgnoreCase(HttpMethodConstant.POST_UPPER)) {
-//							// 取body参数
-//							response.text("POST正在研发中.");
-//						} else {
-//							response.text("不支持GET|POST以外的方法.");
-//						}
                     } catch (IllegalAccessException e) {
                         log.info(e.getMessage());
                     } catch (InvocationTargetException e) {
@@ -180,7 +161,6 @@ public class RouteHandler extends AbstractInitHandler {
                     response.text(" No route type " + route.getRouteType());
                 }
             } else {
-                // 返回404
                 response.setStatus(500);
                 response.text(" No Mapping " + uri);
             }
