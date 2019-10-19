@@ -10,7 +10,7 @@ import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.constant.RouteTypeConstant;
 import org.ael.mvc.container.exception.RequestParamRequiredException;
-import org.ael.mvc.handler.init.InitHandler;
+import org.ael.mvc.handler.init.AbstractInitHandler;
 import org.ael.mvc.http.Request;
 import org.ael.mvc.http.Response;
 import org.ael.mvc.http.WebContent;
@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 @Configuration(order = 2)
-public class RouteHandler extends InitHandler {
+public class RouteHandler extends AbstractInitHandler {
 
     private Ael ael;
     private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
@@ -195,7 +195,7 @@ public class RouteHandler extends InitHandler {
         List<Object> paramList = new ArrayList<>();
 
         for (Parameter parameter : parameters) {
-            RequestParam annotation = parameter.getAnnotation(RouteConstant.requestParam);
+            RequestParam annotation = parameter.getAnnotation(RouteConstant.REQUEST_PARAM_CLASS);
             // 名称
             String value;
             if (annotation == null) {
@@ -230,7 +230,7 @@ public class RouteHandler extends InitHandler {
 
         Object invoke = routeMethod.invoke(route.getTarget(), paramList.toArray());
 
-        ResponseJson responseJson = routeMethod.getDeclaredAnnotation(RouteConstant.responseJson);
+        ResponseJson responseJson = routeMethod.getDeclaredAnnotation(RouteConstant.RESPONSE_JSON_CLASS);
         if (null == responseJson) {
             Class<?> returnType = routeMethod.getReturnType();
             if (String.class.equals(returnType)) {

@@ -53,7 +53,7 @@ public class DefaultTemplate implements AelTemplate {
     private static String PREFIX = "";
     private static String SUFFIX = "";
 
-    private final static ClassLoader classLoader = DefaultTemplate.class.getClassLoader();
+    private final static ClassLoader DEFAULT_CLASS_LOADER = DefaultTemplate.class.getClassLoader();
 
     @Override
     public void init(Ael ael) {
@@ -65,10 +65,7 @@ public class DefaultTemplate implements AelTemplate {
 
     @Override
     public String readFileContext(String view) throws ViewNotFoundException {
-        InputStream resourceAsStream = classLoader.getResourceAsStream(PREFIX + view + SUFFIX);
-        if (null == resourceAsStream) {
-            resourceAsStream = this.getClass().getResourceAsStream(PREFIX + view + SUFFIX);
-        }
+        InputStream resourceAsStream = ClassPathFileConstant.getClassPathFile(PREFIX + view + SUFFIX);
         if (null == resourceAsStream) {
             throw new ViewNotFoundException(view + " view not found ... ");
         } else {

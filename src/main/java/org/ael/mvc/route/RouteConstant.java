@@ -5,8 +5,8 @@ import org.ael.mvc.annotation.ResponseJson;
 
 public interface RouteConstant {
 
-    Class<RequestParam> requestParam = RequestParam.class;
+    Class<RequestParam> REQUEST_PARAM_CLASS = RequestParam.class;
 
-    Class<ResponseJson> responseJson = ResponseJson.class;
+    Class<ResponseJson> RESPONSE_JSON_CLASS = ResponseJson.class;
 
 }

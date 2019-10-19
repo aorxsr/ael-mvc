@@ -11,7 +11,7 @@ public interface ContentType {
 
 	String APPLICATION = "application/octet-stream";
 
-	Map<String, String> contentTypes = new HashMap<String, String>() {{
+	Map<String, String> CONTENT_TYPES = new HashMap<String, String>() {{
 		put("mp4", "audio/mp4");
 		put("mp3", "audio/mpeg");
 
@@ -66,8 +66,8 @@ public interface ContentType {
 	 * @return
 	 */
 	static String get(String ext) {
-		if (contentTypes.containsKey(ext)) {
-			return contentTypes.get(ext);
+		if (CONTENT_TYPES.containsKey(ext)) {
+			return CONTENT_TYPES.get(ext);
 		} else {
 			return APPLICATION;
 		}

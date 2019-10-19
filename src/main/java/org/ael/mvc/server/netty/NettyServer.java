@@ -10,16 +10,13 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.ael.mvc.Ael;
 import org.ael.mvc.annotation.Configuration;
-import org.ael.mvc.commons.ClassUtils;
-import org.ael.mvc.commons.StringUtils;
 import org.ael.mvc.constant.EnvironmentConstant;
-import org.ael.mvc.handler.init.InitHandler;
+import org.ael.mvc.handler.init.AbstractInitHandler;
 import org.ael.mvc.http.WebContent;
 import org.ael.mvc.http.session.SessionClearHandler;
 import org.ael.mvc.route.RouteHandler;
 import org.ael.mvc.server.Server;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -88,7 +85,7 @@ public class NettyServer implements Server {
 
         // 获取所有 @Configuration 类
         Class<Configuration> configuration = Configuration.class;
-        Class<InitHandler> initHandler = InitHandler.class;
+        Class<AbstractInitHandler> initHandler = AbstractInitHandler.class;
         ael.getScanClass()
                 .stream()
                 .filter(aClass -> configHandler(configuration, initHandler, aClass))
@@ -126,10 +123,10 @@ public class NettyServer implements Server {
         serverBootstrap.group(work, boss);
     }
 
-    private boolean configHandler(Class<Configuration> configuration, Class<InitHandler> initHandlerClass, Class<?> aClass) {
+    private boolean configHandler(Class<Configuration> configuration, Class<AbstractInitHandler> initHandlerClass, Class<?> aClass) {
         if (aClass.isAnnotationPresent(configuration)) {
             try {
-                Class<? extends InitHandler> subclass = aClass.asSubclass(initHandlerClass);
+                Class<? extends AbstractInitHandler> subclass = aClass.asSubclass(initHandlerClass);
                 return true;
             } catch (Exception e) {
                 return false;

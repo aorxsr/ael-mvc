@@ -6,26 +6,18 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.var;
-import org.ael.mvc.Environment;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.http.session.SessionHandler;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 
 import static org.ael.mvc.constant.HttpConstant.COOKIE;
 import static org.ael.mvc.constant.HttpConstant.HOST;
