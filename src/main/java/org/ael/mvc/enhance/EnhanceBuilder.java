@@ -89,7 +89,7 @@ public class EnhanceBuilder extends AbstractInitHandler {
                 // 生成正则表达式
 
                 String regex = url;
-                regex.replaceAll("*", "");
+                regex.replaceAll("[*]", "");
 
 //                int indexOf = url.indexOf("*");
 //                // 没有任何一个* 的
@@ -113,8 +113,10 @@ public class EnhanceBuilder extends AbstractInitHandler {
 //                        }
 //                    }
 //                }
+                enhanceInfo.setPattern(Pattern.compile(regex));
                 enhanceInfos.add(enhanceInfo);
             }
+            log.info("enhance url:" + url);
         } catch (Exception e) {
             e.printStackTrace();
         }

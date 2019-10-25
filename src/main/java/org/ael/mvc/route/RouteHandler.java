@@ -10,6 +10,7 @@ import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.constant.RouteTypeConstant;
 import org.ael.mvc.container.exception.RequestParamRequiredException;
+import org.ael.mvc.enhance.EnhanceInfo;
 import org.ael.mvc.handler.init.AbstractInitHandler;
 import org.ael.mvc.http.Request;
 import org.ael.mvc.http.Response;
@@ -17,6 +18,8 @@ import org.ael.mvc.http.WebContent;
 import org.ael.mvc.http.body.StringBody;
 import org.ael.mvc.http.body.ViewBody;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -141,30 +144,59 @@ public class RouteHandler extends AbstractInitHandler {
         String method = request.getMethod();
         String key = method.toUpperCase() + "#" + uri;
 
-        // 判断是否是 静态资源文件...
-        if (isStatics(uri)) {
-            webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
-        } else {
-            if (WebContent.ael.getRouteHandler().routeHandlers.containsKey(key)) {
-                // enhance constant
-                Route route = WebContent.ael.getRouteHandler().routeHandlers.get(key);
-                if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
-                    route.getRouteFunctionHandler().handler(webContent);
-                } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
-                    try {
-                        route.getMethod().invoke(route.getTarget(), webContent);
-                    } catch (IllegalAccessException e) {
-                        log.info(e.getMessage());
-                    } catch (InvocationTargetException e) {
-                        log.info(e.getMessage());
+        try {
+            // 拦截器
+            EnhanceInfo enhanceInfo = ael.getEnhanceHandler().executeEnhanceHandler(webContent);
+            if (null != enhanceInfo) {
+                // 前置
+                Method beforeMethod = enhanceInfo.getBeforeMethod();
+                if (null != beforeMethod) {
+                    Object invoke = beforeMethod.invoke(enhanceInfo.getTarget(), webContent);
+                    if (null != invoke) {
+                        if (!(boolean) invoke) {
+                            return webContent;
+                        }
+                    }
+                }
+            }
+            // 判断是否是 静态资源文件...
+            if (isStatics(uri)) {
+                webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
+            } else {
+                if (WebContent.ael.getRouteHandler().routeHandlers.containsKey(key)) {
+                    // enhance constant
+                    Route route = WebContent.ael.getRouteHandler().routeHandlers.get(key);
+                    if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
+                        route.getRouteFunctionHandler().handler(webContent);
+                    } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
+                        try {
+                            route.getMethod().invoke(route.getTarget(), webContent);
+                        } catch (IllegalAccessException e) {
+                            log.info(e.getMessage());
+                        } catch (InvocationTargetException e) {
+                            log.info(e.getMessage());
+                        }
+                    } else {
+                        response.text(" No route type " + route.getRouteType());
                     }
                 } else {
-                    response.text(" No route type " + route.getRouteType());
+                    response.setStatus(500);
+                    response.text(" No Mapping " + uri);
                 }
-            } else {
-                response.setStatus(500);
-                response.text(" No Mapping " + uri);
             }
+            if (null != enhanceInfo) {
+                // 后置
+                Method afterMethod = enhanceInfo.getAfterMethod();
+                if (null != afterMethod) {
+                    afterMethod.invoke(enhanceInfo.getTarget(), webContent);
+                }
+            }
+        } catch (Exception e) {
+            response.setStatus(500);
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            response.json(sw.toString());
         }
 
         return webContent;

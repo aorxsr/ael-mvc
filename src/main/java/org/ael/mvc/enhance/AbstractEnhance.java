@@ -14,13 +14,13 @@ public abstract class AbstractEnhance {
      *
      * @param webContent
      */
-    public abstract void before(WebContent webContent);
+    public abstract boolean before(WebContent webContent);
 
     /**
      * 后置增强
      *
      * @param webContent
      */
-    public abstract void after(WebContent webContent);
+    public abstract boolean after(WebContent webContent);
 
 }

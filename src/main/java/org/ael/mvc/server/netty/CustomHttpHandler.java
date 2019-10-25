@@ -13,6 +13,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import org.ael.mvc.commons.StringUtils;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.exception.ViewNotFoundException;
@@ -37,7 +38,11 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
         try {
             writeResponse(ctx, buildResponse(execute(initRequest(request, ctx))));
         } catch (Exception e) {
-            DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(e.getMessage().getBytes()));
+            String message = e.getMessage();
+            if (StringUtils.isEmpty(message)) {
+                message = "";
+            }
+            DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(message.getBytes()));
             writeResponse(ctx, defaultFullHttpResponse);
         }
     }
