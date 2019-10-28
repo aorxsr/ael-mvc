@@ -202,63 +202,6 @@ public class RouteHandler extends AbstractInitHandler {
         return webContent;
     }
 
-    private Response invokeGet(Request request, Response response, WebContent webContent, Route route) throws InvocationTargetException, IllegalAccessException {
-        Method routeMethod = route.getMethod();
-        Parameter[] parameters = routeMethod.getParameters();
-        List<Object> paramList = new ArrayList<>();
-
-        for (Parameter parameter : parameters) {
-            RequestParam annotation = parameter.getAnnotation(RouteConstant.REQUEST_PARAM_CLASS);
-            // 名称
-            String value;
-            if (annotation == null) {
-                value = parameter.getName();
-            } else {
-                value = annotation.value();
-                if (StringUtils.isEmpty(value)) {
-                    // 获取参数名称
-                    value = parameter.getName();
-                }
-            }
-            Object val = request.getPathParam(value);
-            if (annotation.required()) {
-                // check required
-                if (null == val) {
-                    throw new RequestParamRequiredException("request param name: " + value + " not found.");
-                }
-                // 判断是否是基本数据类型
-                Class<?> parameterType = parameter.getType();
-                if (isBasicType(parameterType)) {
-
-                } else if (isObjectType(parameterType)) {
-                    paramList.add(getObjectType(parameterType, webContent));
-                }
-            } else {
-                // 取参数
-                paramList.add(val);
-            }
-        }
-
-        // 判断这个方法是否有 ResponseJson
-
-        Object invoke = routeMethod.invoke(route.getTarget(), paramList.toArray());
-
-        ResponseJson responseJson = routeMethod.getDeclaredAnnotation(RouteConstant.RESPONSE_JSON_CLASS);
-        if (null == responseJson) {
-            Class<?> returnType = routeMethod.getReturnType();
-            if (String.class.equals(returnType)) {
-                response.write(ViewBody.of(invoke.toString()));
-            }
-        } else {
-            // 转JSON
-
-            response.write(StringBody.of(""));
-        }
-
-        // 设置响应头
-        response.setContentType(route.getContentType());
-        return response;
-    }
 
     private boolean isObjectType(Type type) {
         return type == Request.class ||

@@ -138,12 +138,7 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Map<String, String> getPathParams() {
-        return null;
-    }
-
-    @Override
-    public Object getPathParam(String name) {
+    public Object getParameter(String name) {
         if (parameters.containsKey(name)) {
             return parameters.get(name);
         } else {

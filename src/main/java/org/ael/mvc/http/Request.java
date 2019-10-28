@@ -26,9 +26,7 @@ public interface Request {
 
 	String getUrl();
 
-	Map<String, String> getPathParams();
-
-	Object getPathParam(String name);
+	Object getParameter(String name);
 
 	Map<String, List<String>> getParameters();
 
