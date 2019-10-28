@@ -64,12 +64,12 @@ public class DefaultTemplate implements AelTemplate {
     }
 
     @Override
-    public String readFileContext(String view) throws ViewNotFoundException {
+    public ReadStaticResources readFileContext(String view) throws ViewNotFoundException, IOException {
         InputStream resourceAsStream = ClassPathFileConstant.getClassPathFile(PREFIX + view + SUFFIX);
         if (null == resourceAsStream) {
             throw new ViewNotFoundException(view + " view not found ... ");
         } else {
-            return readFile(resourceAsStream);
+            return new ReadStaticResources(resourceAsStream);
         }
     }
 

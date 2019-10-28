@@ -114,7 +114,7 @@ public class Environment implements Map<String, Object> {
     }
 
     public List getList(String key, List defaultValue) {
-        return map.containsKey(key) ? arrayToList(map.get(key).toString().split(","))  : defaultValue;
+        return map.containsKey(key) ? (List)map.get(key)  : defaultValue;
     }
 
     public void initConfig() {

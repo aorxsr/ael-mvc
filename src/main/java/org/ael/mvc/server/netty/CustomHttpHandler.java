@@ -13,16 +13,22 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
-import org.ael.mvc.commons.StringUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpConstant;
-import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.*;
 import org.ael.mvc.http.body.BodyWrite;
 import org.ael.mvc.http.body.ViewBody;
+import org.ael.mvc.template.give.ReadStaticResources;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Date;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -30,21 +36,27 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  * @Author: aorxsr
  * @Date: 2019/7/24 16:56
  */
+@Slf4j
 @ChannelHandler.Sharable
 public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
+    public static final ExecutorService executorService = Executors.newFixedThreadPool(8);
+
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpRequest request) throws Exception {
-        try {
-            writeResponse(ctx, buildResponse(execute(initRequest(request, ctx))));
-        } catch (Exception e) {
-            String message = e.getMessage();
-            if (StringUtils.isEmpty(message)) {
-                message = "";
-            }
-            DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(message.getBytes()));
-            writeResponse(ctx, defaultFullHttpResponse);
-        }
+        executorService.execute(() -> CompletableFuture.completedFuture(request)
+                .thenApplyAsync(httpRequest -> initRequest(httpRequest, ctx))
+                .thenApplyAsync(this::execute)
+                .thenApplyAsync(this::buildResponse)
+                .exceptionally(this::exceptionally)
+                .thenAcceptAsync(fullHttpResponse -> writeResponse(ctx, fullHttpResponse), ctx.channel().eventLoop()));
+    }
+
+    public FullHttpResponse exceptionally(Throwable cause) {
+        StringWriter writer = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(writer);
+        cause.printStackTrace(printWriter);
+        return new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(writer.toString().getBytes()));
     }
 
     private void writeResponse(ChannelHandlerContext ctx, FullHttpResponse res) {
@@ -75,48 +87,46 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
                 }
             }
         }
-
-        return response.getBody().body(new BodyWrite() {
-            @Override
-            public FullHttpResponse onView(ViewBody body) {
-                // 读取文件
-                try {
-                    String context = WebContent.ael.getAelTemplate().readFileContext(body.getUrl());
-                    DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()), Unpooled.copiedBuffer(context.getBytes()));
+        try {
+            return response.getBody().body(new BodyWrite() {
+                @Override
+                public FullHttpResponse onView(ViewBody body) throws IOException {
+                    ReadStaticResources readStaticResources = WebContent.ael.getAelTemplate().readFileContext(body.getUrl());
+                    DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()), readStaticResources.getByteBuf());
+                    response.addHeader("Content-Length", readStaticResources.getSizeString());
                     appendResponseCookie(response.getNettyCookies(), defaultFullHttpResponse);
                     response.setContentType(HttpConstant.TEXT_HTML);
                     response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
                     defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
                     return defaultFullHttpResponse;
-                } catch (ViewNotFoundException e) {
-                    e.printStackTrace();
                 }
-                return null;
-            }
 
-            @Override
-            public FullHttpResponse onByteBuf(Object byteBuf) {
-                DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()));
-                response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
-                ChannelHandlerContext ctx = webContent.getCtx();
-                // Promise是做数据过程中的数据保证
-                ctx.write(defaultFullHttpResponse, ctx.voidPromise());
-                ChannelFuture future = ctx.writeAndFlush(byteBuf);
-                if (!request.isKeepAlive()) {
-                    future.addListener(ChannelFutureListener.CLOSE);
+                @Override
+                public FullHttpResponse onByteBuf(Object byteBuf) {
+                    DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()));
+                    response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
+                    ChannelHandlerContext ctx = webContent.getCtx();
+                    // Promise是做数据过程中的数据保证
+                    ctx.write(defaultFullHttpResponse, ctx.voidPromise());
+                    ChannelFuture future = ctx.writeAndFlush(byteBuf);
+                    if (!request.isKeepAlive()) {
+                        future.addListener(ChannelFutureListener.CLOSE);
+                    }
+                    return null;
                 }
-                return null;
-            }
 
-            @Override
-            public FullHttpResponse onByteBuf(ByteBuf byteBuf) {
-                DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()), byteBuf);
-                appendResponseCookie(response.getNettyCookies(), defaultFullHttpResponse);
-                response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
-                defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
-                return defaultFullHttpResponse;
-            }
-        });
+                @Override
+                public FullHttpResponse onByteBuf(ByteBuf byteBuf) {
+                    DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()), byteBuf);
+                    appendResponseCookie(response.getNettyCookies(), defaultFullHttpResponse);
+                    response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
+                    defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
+                    return defaultFullHttpResponse;
+                }
+            });
+        } catch (IOException e) {
+            return exceptionally(e.getSuppressed()[0]);
+        }
     }
 
     private void appendResponseCookie(Set<Cookie> cookieSet, FullHttpResponse response) {

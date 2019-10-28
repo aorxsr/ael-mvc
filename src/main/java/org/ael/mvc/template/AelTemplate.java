@@ -3,6 +3,9 @@ package org.ael.mvc.template;
 import org.ael.mvc.Ael;
 import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.WebContent;
+import org.ael.mvc.template.give.ReadStaticResources;
+
+import java.io.IOException;
 
 /**
  * @Author: aorxsr
@@ -25,6 +28,6 @@ public interface AelTemplate {
 	 */
 	void init(Ael ael);
 
-	String readFileContext(String view) throws ViewNotFoundException;
+	ReadStaticResources readFileContext(String view) throws ViewNotFoundException, IOException;
 
 }

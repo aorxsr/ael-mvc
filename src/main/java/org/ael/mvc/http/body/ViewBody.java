@@ -3,6 +3,8 @@ package org.ael.mvc.http.body;
 import io.netty.handler.codec.http.FullHttpResponse;
 import lombok.Getter;
 
+import java.io.IOException;
+
 /**
  * @Author: aorxsr
  * @Date: 2019/7/29 13:54
@@ -19,7 +21,7 @@ public class ViewBody implements Body {
 	}
 
 	@Override
-	public FullHttpResponse body(BodyWrite write) {
+	public FullHttpResponse body(BodyWrite write) throws IOException {
 		return write.onView(this);
 	}
 

@@ -130,4 +130,11 @@ public class Ael {
         this.scanClass.add(startClass);
     }
 
+    public Ael addScanPackage(String scanPackage) {
+        List<String> scanPackageList = getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList());
+        scanPackageList.add(scanPackage);
+        environment.put(EnvironmentConstant.SCAN_PACKAGE, scanPackageList);
+        return this;
+    }
+
 }

@@ -61,14 +61,20 @@ public class NettyServer implements Server {
     }
 
     private void startServer() throws InterruptedException {
-        future = serverBootstrap.channel(NioServerSocketChannel.class)
-                .childHandler(new InitialHandler())
-                .bind(7788)
-                .sync();
-
+        new Thread(() -> {
+            try {
+                future = serverBootstrap.channel(NioServerSocketChannel.class)
+                        .childHandler(new InitialHandler())
+                        .bind(7788)
+                        .sync()
+                        .channel()
+                        .closeFuture()
+                        .sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
         System.out.println("open in browser http://127.0.0.1:7788 ");
-
-        future.channel().closeFuture().sync();
     }
 
     private void init() {
