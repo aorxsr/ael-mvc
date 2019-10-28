@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -40,6 +42,8 @@ public class NettyServer implements Server {
     private ChannelFuture future;
 
     private Ael ael;
+
+    public static final ExecutorService executorService = Executors.newFixedThreadPool(8);
 
     @Override
     public void start(Ael ael) {
@@ -61,19 +65,13 @@ public class NettyServer implements Server {
     }
 
     private void startServer() throws InterruptedException {
-        new Thread(() -> {
-            try {
-                future = serverBootstrap.channel(NioServerSocketChannel.class)
-                        .childHandler(new InitialHandler())
-                        .bind(7788)
-                        .sync()
-                        .channel()
-                        .closeFuture()
-                        .sync();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
+        future = serverBootstrap.channel(NioServerSocketChannel.class)
+                .childHandler(new InitialHandler())
+                .bind(7788)
+                .sync()
+                .channel()
+                .closeFuture()
+                .sync();
         System.out.println("open in browser http://127.0.0.1:7788 ");
     }
 
@@ -132,7 +130,7 @@ public class NettyServer implements Server {
     private boolean configHandler(Class<Configuration> configuration, Class<AbstractInitHandler> initHandlerClass, Class<?> aClass) {
         if (aClass.isAnnotationPresent(configuration)) {
             try {
-                Class<? extends AbstractInitHandler> subclass = aClass.asSubclass(initHandlerClass);
+                aClass.asSubclass(initHandlerClass);
                 return true;
             } catch (Exception e) {
                 return false;
@@ -150,6 +148,8 @@ public class NettyServer implements Server {
         if (!boss.isShutdown()) {
             boss.shutdownGracefully();
         }
+        // 关闭线程池
+        executorService.shutdown();
     }
 
 }

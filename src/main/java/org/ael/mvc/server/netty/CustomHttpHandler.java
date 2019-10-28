@@ -27,8 +27,6 @@ import java.io.StringWriter;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -40,11 +38,9 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 @ChannelHandler.Sharable
 public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> {
 
-    public static final ExecutorService executorService = Executors.newFixedThreadPool(8);
-
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpRequest request) throws Exception {
-        executorService.execute(() -> CompletableFuture.completedFuture(request)
+        NettyServer.executorService.execute(() -> CompletableFuture.completedFuture(request)
                 .thenApplyAsync(httpRequest -> initRequest(httpRequest, ctx))
                 .thenApplyAsync(this::execute)
                 .thenApplyAsync(this::buildResponse)
