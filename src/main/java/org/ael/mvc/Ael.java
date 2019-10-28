@@ -4,6 +4,7 @@ import lombok.Data;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.container.SimpleContainer;
+import org.ael.mvc.data.source.DataSourceFactory;
 import org.ael.mvc.enhance.EnhanceHandler;
 import org.ael.mvc.handler.StaticsResourcesHandler;
 import org.ael.mvc.http.session.SessionHandler;
@@ -46,6 +47,8 @@ public class Ael {
     private Set<Class<?>> scanClass = new LinkedHashSet<>(16);
 
     private EnhanceHandler enhanceHandler;
+
+    private DataSourceFactory dataSourceFactory = new DataSourceFactory();
 
     /**
      * 用于初始化
@@ -136,5 +139,12 @@ public class Ael {
         environment.put(EnvironmentConstant.SCAN_PACKAGE, scanPackageList);
         return this;
     }
+
+    public Ael addDataSource(String dataSourceName, String userName, String password, String driverClassName, String url,
+                             int max, int initSize, int timeout) {
+        dataSourceFactory.createDataSource(dataSourceName, userName, password, driverClassName, url, max, initSize, timeout);
+        return this;
+    }
+
 
 }
