@@ -26,10 +26,11 @@ public class SimpleContainer {
     }
 
     public void initContainer() {
-        String scanPackage = ael.getEnvironment().getString(EnvironmentConstant.SCAN_PACKAGE);
-        if (StringUtils.isNotEmpty(scanPackage)) {
-            ClassUtil.scanPackage(scanPackage).forEach(this::existenceSubassembly);
-        }
+        // 1. 读取所有有关注解
+        ael.getScanClass().forEach(this::existenceSubassembly);
+        subassemblys.forEach((k, v) -> System.out.println(k));
+        // 2. 加载到了map里面,然后后置设置
+
     }
 
     private void existenceSubassembly(Class<?> clazz) throws SubassemblyExistException {
