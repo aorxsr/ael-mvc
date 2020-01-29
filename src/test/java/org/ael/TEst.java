@@ -1,7 +1,5 @@
 package org.ael;
 
-import org.ael.mvc.Ael;
-
 public class TEst {
 
     public static void main(String[] args) {
