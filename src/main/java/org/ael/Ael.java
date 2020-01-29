@@ -47,7 +47,7 @@ public class Ael {
 
     private Environment environment = new Environment();
 
-    private RouteHandler routeHandler = new RouteHandler();
+    private RouteHandler routeHandler = new RouteHandler(this);
 
     private SessionManager sessionManager = new SessionManager();
 

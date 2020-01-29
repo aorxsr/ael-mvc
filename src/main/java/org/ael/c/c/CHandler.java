@@ -14,7 +14,6 @@
  */
 package org.ael.c.c;
 
-import cn.hutool.core.util.ClassUtil;
 import io.netty.util.internal.StringUtil;
 import org.ael.Ael;
 import org.ael.c.annotation.Controller;
@@ -22,10 +21,8 @@ import org.ael.c.annotation.GetMapping;
 import org.ael.c.annotation.PostMapping;
 import org.ael.c.annotation.RequestMapping;
 import org.ael.commons.ClassUtils;
-import org.ael.constant.EnvironmentConstant;
-import org.ael.constant.HttpConstant;
-import org.ael.constant.HttpMethodConstant;
-import org.ael.constant.RouteTypeConstant;
+import org.ael.commons.StringUtils;
+import org.ael.constant.*;
 import org.ael.route.Route;
 
 import java.lang.reflect.Method;
@@ -56,13 +53,12 @@ public class CHandler {
         List<Class<?>> classs = ClassUtils.getClasss(scans, Controller.class);
 
         for (Class<?> clazz : classs) {
-            String controllerUrl = null;
-            RequestMapping requestMapping = clazz.getAnnotation(RequestMapping.class);
-            if (null == requestMapping) {
-                continue;
-            } else {
-                if (requestMapping.value().isEmpty()) {
-                    controllerUrl = requestMapping.value();
+            String controllerUrl = "";
+
+            RequestMapping controllerRequestMapping = clazz.getAnnotation(RequestMapping.class);
+            if (null != controllerRequestMapping) {
+                if (StringUtils.isNotEmpty(controllerRequestMapping.value())) {
+                    controllerUrl = controllerRequestMapping.value();
                 }
             }
             Method[] methods = clazz.getMethods();
@@ -71,68 +67,41 @@ public class CHandler {
                 if (null == getMethod) {
                     PostMapping postMethod = method.getAnnotation(PostMapping.class);
                     if (null == postMethod) {
-                        continue;
-                    } else {
-                        String methodUrl = postMethod.value();
-                        if (StringUtil.isNullOrEmpty(methodUrl)) {
+                        RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
+                        if (null == requestMapping) {
                             continue;
+                        } else {
+                            buildRoute(controllerUrl, requestMapping.value(), clazz, method, requestMapping.contentType(), HttpMethodConstant.ALL_UPPER);
                         }
-                        routeHandlers.put(HttpMethodConstant.POST_UPPER + HttpConstant.WELL + controllerUrl, Route.builder()
-                                .target(clazz.newInstance())
-                                .classType(clazz)
-                                .httpMethod(HttpMethodConstant.POST_UPPER)
-                                .path(controllerUrl)
-                                .routeType(RouteTypeConstant.ROUTE_TYPE_CLASS)
-                                .method(method)
-                                .contentType(getMethod.contentType())
-                                .build());
-
+                    } else {
+                        buildRoute(controllerUrl, postMethod.value(), clazz, method, getMethod.contentType(), HttpMethodConstant.POST_UPPER);
                     }
                 } else {
-                    // Get方法,
-                    String methodUrl = getMethod.value();
-                    if (StringUtil.isNullOrEmpty(methodUrl)) {
-                        continue;
-                    }
-                    if (methodUrl.startsWith("/")) {
-                        controllerUrl += methodUrl;
-                    } else {
-                        controllerUrl = "/" + methodUrl;
-                    }
-                    routeHandlers.put(HttpMethodConstant.GET_UPPER + HttpConstant.WELL + controllerUrl, Route.builder()
-                            .target(clazz.newInstance())
-                            .classType(clazz)
-                            .httpMethod(HttpMethodConstant.POST_UPPER)
-                            .path(controllerUrl)
-                            .routeType(RouteTypeConstant.ROUTE_TYPE_CLASS)
-                            .method(method)
-                            .contentType(getMethod.contentType())
-                            .build());
+                    buildRoute(controllerUrl, getMethod.value(), clazz, method, getMethod.contentType(), HttpMethodConstant.GET_UPPER);
                 }
             }
         }
         return routeHandlers;
     }
 
-    private void buildRoute() {
-//        String methodUrl = getMethod.value();
-//        if (StringUtil.isNullOrEmpty(methodUrl)) {
-//            continue;
-//        }
-//        if (methodUrl.startsWith("/")) {
-//            controllerUrl += methodUrl;
-//        } else {
-//            controllerUrl = "/" + methodUrl;
-//        }
-//        routeHandlers.put(HttpMethodConstant.GET_UPPER + HttpConstant.WELL + controllerUrl, Route.builder()
-//                .target(clazz.newInstance())
-//                .classType(clazz)
-//                .httpMethod(HttpMethodConstant.POST_UPPER)
-//                .path(controllerUrl)
-//                .routeType(RouteTypeConstant.ROUTE_TYPE_CLASS)
-//                .method(method)
-//                .contentType(getMethod.contentType())
-//                .build());
+    private void buildRoute(String controllerUrl, String methodUrl, Class<?> clazz, Method method, String contentType, String httpMethod) throws IllegalAccessException, InstantiationException {
+        if (StringUtil.isNullOrEmpty(methodUrl)) {
+            return;
+        }
+        if (methodUrl.startsWith("/")) {
+            controllerUrl += methodUrl;
+        } else {
+            controllerUrl = "/" + methodUrl;
+        }
+        routeHandlers.put(httpMethod + HttpConstant.WELL + controllerUrl, Route.builder()
+                .target(clazz.newInstance())
+                .classType(clazz)
+                .httpMethod(httpMethod)
+                .path(controllerUrl)
+                .routeType(RouteTypeConstant.ROUTE_TYPE_CLASS)
+                .method(method)
+                .contentType(contentType)
+                .build());
     }
 
 }

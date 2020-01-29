@@ -29,4 +29,6 @@ public @interface RequestMapping {
 
     String value() default "";
 
+    String contentType() default "text/html";
+
 }

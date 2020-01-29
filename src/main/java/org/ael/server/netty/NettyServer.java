@@ -4,19 +4,11 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.ael.commons.ClassUtils;
-import org.ael.handler.init.AbstractInitHandler;
 import org.ael.Ael;
-import org.ael.annotation.Configuration;
-import org.ael.constant.EnvironmentConstant;
 import org.ael.http.WebContent;
 import org.ael.http.session.SessionClearHandler;
 import org.ael.server.Server;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -78,39 +70,6 @@ public class NettyServer implements Server {
         // environment 初始化
         ael.getEnvironment().initConfig();
 
-        List<String> scanPackage = ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList());
-        scanPackage.add("org.ael");
-        ael.getEnvironment().put(EnvironmentConstant.SCAN_PACKAGE, scanPackage);
-
-        // 获取所有 @Configuration 类
-        Class<Configuration> configuration = Configuration.class;
-        Class<AbstractInitHandler> initHandler = AbstractInitHandler.class;
-        ClassUtils.getClasss(scanPackage, configuration)
-                .stream()
-                .filter(aClass -> configHandler(configuration, initHandler, aClass))
-                .sorted((aClass, bClass) -> {
-                    Configuration aConfiguration = aClass.getAnnotation(configuration);
-                    Configuration bConfiguration = bClass.getAnnotation(configuration);
-                    int aOrder = aConfiguration.order();
-                    int bOrder = bConfiguration.order();
-                    if (aOrder > bOrder) {
-                        return 1;
-                    } else if (aOrder == bOrder) {
-                        return 0;
-                    } else {
-                        return -1;
-                    }
-                }).forEach(aClass -> {
-            try {
-                Object instance = aClass.newInstance();
-                Method init = aClass.getMethod("init", Ael.class);
-                init.invoke(instance, ael);
-            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        });
-
-
         boss = new NioEventLoopGroup();
         work = new NioEventLoopGroup();
 
@@ -120,19 +79,6 @@ public class NettyServer implements Server {
         serverBootstrap = new ServerBootstrap();
         // 初始化配置
         serverBootstrap.group(work, boss);
-    }
-
-    private boolean configHandler(Class<Configuration> configuration, Class<AbstractInitHandler> initHandlerClass, Class<?> aClass) {
-        if (aClass.isAnnotationPresent(configuration)) {
-            try {
-                aClass.asSubclass(initHandlerClass);
-                return true;
-            } catch (Exception e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
     }
 
     @Override

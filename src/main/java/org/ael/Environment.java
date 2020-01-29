@@ -29,13 +29,14 @@ import java.util.*;
 @Slf4j
 public class Environment implements Map<String, Object> {
 
-    /**
-     * 存放环境信息
-     */
-    private Map<String, Object> map = null;
+    private Map<String, Object> map = new HashMap<String, Object>(16) {{
+        put(EnvironmentConstant.SCAN_PACKAGE, buildList());
+    }};
 
-    public Environment() {
-        map = new HashMap<>(16);
+    private List<String> buildList() {
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("org.ael");
+        return strings;
     }
 
     @Override
