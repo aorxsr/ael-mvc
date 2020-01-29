@@ -52,6 +52,11 @@ public class HttpResponse implements Response {
     }
 
     @Override
+    public void addHeader(String key, int value) {
+        headers.put(key, Integer.toString(value));
+    }
+
+    @Override
     public void removeHeader(String key) {
         headers.remove(key);
     }

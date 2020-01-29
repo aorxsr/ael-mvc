@@ -1,25 +1,22 @@
 /* Copyright (c) 2019, aorxsr (aorxsr@163.com)
-*
-*  Licensed under the Apache License, Version 2.0 (the "License");
-*  you may not use this file except in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing, software
-*  distributed under the License is distributed on an "AS IS" BASIS,
-*  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-*  See the License for the specific language governing permissions and
-*  limitations under the License.
-*/
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.ael.mvc;
 
 import lombok.Data;
 import org.ael.mvc.constant.EnvironmentConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
-import org.ael.mvc.container.SimpleContainer;
-import org.ael.mvc.data.source.DataSourceFactory;
-import org.ael.mvc.enhance.EnhanceHandler;
 import org.ael.mvc.handler.StaticsResourcesHandler;
 import org.ael.mvc.http.session.SessionHandler;
 import org.ael.mvc.http.session.SessionManager;
@@ -50,8 +47,6 @@ public class Ael {
 
     private Environment environment = new Environment();
 
-    private SimpleContainer container = new SimpleContainer(this);
-
     private RouteHandler routeHandler = new RouteHandler();
 
     private SessionManager sessionManager = new SessionManager();
@@ -60,19 +55,7 @@ public class Ael {
 
     private Set<Class<?>> scanClass = new LinkedHashSet<>(16);
 
-    private EnhanceHandler enhanceHandler;
-
-    private DataSourceFactory dataSourceFactory = new DataSourceFactory();
-
-    /**
-     * 用于初始化
-     */
     private List<InitialHandler> initHandlers = new ArrayList<>();
-
-    public Ael start() {
-        server.start(this);
-        return this;
-    }
 
     public Ael start(Class<?> startClass) {
         this.startClass = startClass;
@@ -82,11 +65,6 @@ public class Ael {
 
     public Ael setSessionKey(String sessionKey) {
         environment.put(EnvironmentConstant.SESSION_KEY, sessionKey);
-        return this;
-    }
-
-    public Ael setFilePath(String filePath) {
-        environment.put(EnvironmentConstant.ENVIRONMENT_FILE, filePath);
         return this;
     }
 
@@ -115,12 +93,6 @@ public class Ael {
         return this;
     }
 
-    public Ael addResourcesMappingAll(Map<String, String> mapping) {
-        staticsResourcesHandler.getResources().putAll(mapping);
-        staticsResourcesHandler.getResourcesHandlers().addAll(mapping.keySet());
-        return this;
-    }
-
     public Ael removeResourcesMapping(String resourcesHandler) {
         if (staticsResourcesHandler.getResources().containsKey(resourcesHandler)) {
             staticsResourcesHandler.getResources().remove(resourcesHandler);
@@ -128,37 +100,5 @@ public class Ael {
         }
         return this;
     }
-
-    public Ael removeResourcesMappingAll(Map<String, String> mapping) {
-        mapping.forEach((resourceHandler, resourcesLocation) -> {
-            if (staticsResourcesHandler.getResources().containsKey(resourceHandler)) {
-                staticsResourcesHandler.getResources().remove(resourceHandler);
-                staticsResourcesHandler.getResourcesHandlers().remove(resourceHandler);
-            }
-        });
-        return this;
-    }
-
-    public void addScanClass(Set<Class<?>> classSet) {
-        this.scanClass.addAll(classSet);
-    }
-
-    public void addScanClass(Class<?> startClass) {
-        this.scanClass.add(startClass);
-    }
-
-    public Ael addScanPackage(String scanPackage) {
-        List<String> scanPackageList = getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList());
-        scanPackageList.add(scanPackage);
-        environment.put(EnvironmentConstant.SCAN_PACKAGE, scanPackageList);
-        return this;
-    }
-
-    public Ael addDataSource(String dataSourceName, String userName, String password, String driverClassName, String url,
-                             int max, int initSize, int timeout) {
-        dataSourceFactory.createDataSource(dataSourceName, userName, password, driverClassName, url, max, initSize, timeout);
-        return this;
-    }
-
 
 }

@@ -1,10 +1,12 @@
 package org.ael.mvc.template.give;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.ael.mvc.Ael;
 import org.ael.mvc.Environment;
+import org.ael.mvc.commons.StreamUtils;
 import org.ael.mvc.constant.ContentType;
 import org.ael.mvc.constant.EnvironmentConstant;
-import org.ael.mvc.container.ClassPathFileConstant;
 import org.ael.mvc.exception.ViewNotFoundException;
 import org.ael.mvc.http.WebContent;
 import org.ael.mvc.http.body.ByteBufBody;
@@ -24,15 +26,17 @@ public class DefaultTemplate implements AelTemplate {
     @Override
     public WebContent render(ModelAndView modelAndView, WebContent webContent) {
         String view = modelAndView.getView();
-        InputStream resourceAsStream = ClassPathFileConstant.getClassPathFile(view);
+        InputStream resourceAsStream = StreamUtils.getClassPathFile(view);
         if (null == resourceAsStream) {
             throw new ViewNotFoundException(view + " view not found ... ");
         } else {
             try {
                 webContent.getRequest().setASESSION(false);
-                ReadStaticResources resources = new ReadStaticResources(resourceAsStream);
-                webContent.getResponse().write(new ByteBufBody(resources.getByteBuf()));
-                webContent.getResponse().addHeader("Content-Length", resources.getSizeString());
+                InputStream inputStream = StreamUtils.convertToByteArrayInputStream(resourceAsStream);
+                ByteBuf buffer = Unpooled.buffer();
+                buffer.writeBytes(inputStream, inputStream.available());
+                webContent.getResponse().write(new ByteBufBody(buffer));
+                webContent.getResponse().addHeader("Content-Length", inputStream.available());
                 String suffix = view.substring(view.lastIndexOf(".") + 1);
                 webContent.getResponse().setContentType(ContentType.get(suffix));
             } catch (IOException e) {
@@ -65,7 +69,7 @@ public class DefaultTemplate implements AelTemplate {
 
     @Override
     public ReadStaticResources readFileContext(String view) throws ViewNotFoundException, IOException {
-        InputStream resourceAsStream = ClassPathFileConstant.getClassPathFile(PREFIX + view + SUFFIX);
+        InputStream resourceAsStream = StreamUtils.getClassPathFile(PREFIX + view + SUFFIX);
         if (null == resourceAsStream) {
             throw new ViewNotFoundException(view + " view not found ... ");
         } else {

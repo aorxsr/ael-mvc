@@ -8,26 +8,24 @@ import io.netty.util.AsciiString;
  */
 public interface HttpConstant {
 
-	String WELL = "#";
+    String WELL = "#";
 
-	String ACCEPT              = "Accept";
-	String USER_AGENT          = "User-Agent";
-	String ACCEPT_ENCODING     = "Accept-Encoding";
-	String COOKIE              = "Cookie";
-	String HOST                = "Host";
+    String ACCEPT = "Accept";
+    String USER_AGENT = "User-Agent";
+    String ACCEPT_ENCODING = "Accept-Encoding";
+    String COOKIE = "Cookie";
+    String HOST = "Host";
 
-	AsciiString SET_COOKIE       = AsciiString.cached("Set-Cookie");
+    AsciiString SET_COOKIE = AsciiString.cached("Set-Cookie");
 
-	/*****response********/
+    /*****response********/
 
-	String CONTENT_TYPE = "Content-Type";
-	String DATE        = "Date";
+    String CONTENT_TYPE = "Content-Type";
+    String DATE = "Date";
 
-	String TEXT_PLAIN   = "text/plain";
-	String TEXT_XML     = "text/xml";
-	String TEXT_HTML    = "text/html";
-	String APPLICATION_JSON = "application/json";
-
-
+    String TEXT_PLAIN = "text/plain;charset=utf-8";
+    String TEXT_XML = "text/xml";
+    String TEXT_HTML = "text/html";
+    String APPLICATION_JSON = "application/json;charset=utf-8";
 
 }

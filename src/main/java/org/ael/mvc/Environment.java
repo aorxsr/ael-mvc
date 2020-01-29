@@ -15,13 +15,12 @@
 package org.ael.mvc;
 
 import lombok.extern.slf4j.Slf4j;
+import org.ael.mvc.commons.StreamUtils;
 import org.ael.mvc.constant.EnvironmentConstant;
-import org.ael.mvc.container.ClassPathFileConstant;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.function.BiConsumer;
 
 /**
  * @Author: aorxsr
@@ -128,12 +127,12 @@ public class Environment implements Map<String, Object> {
     }
 
     public List getList(String key, List defaultValue) {
-        return map.containsKey(key) ? (List)map.get(key)  : defaultValue;
+        return map.containsKey(key) ? (List) map.get(key) : defaultValue;
     }
 
     public void initConfig() {
         // 加载配置文件
-        InputStream classPathFile = ClassPathFileConstant.getClassPathFile("app.properties");
+        InputStream classPathFile = StreamUtils.getClassPathFile("app.properties");
         if (null == classPathFile) {
             return;
         }
@@ -147,7 +146,7 @@ public class Environment implements Map<String, Object> {
             // 判断子配置文件
             if (properties.containsKey(EnvironmentConstant.ACTIVE_NAME)) {
                 String active = properties.getProperty(EnvironmentConstant.ACTIVE_NAME);
-                classPathFile = ClassPathFileConstant.getClassPathFile(active);
+                classPathFile = StreamUtils.getClassPathFile(active);
                 if (null == classPathFile) {
                     return;
                 }
@@ -160,16 +159,6 @@ public class Environment implements Map<String, Object> {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public  List<String> arrayToList(String[] array) {
-        List<String> arrayList = new ArrayList<>();
-        if (array.length != 0) {
-            for (String s : array) {
-                arrayList.add(s);
-            }
-        }
-        return arrayList;
     }
 
 }

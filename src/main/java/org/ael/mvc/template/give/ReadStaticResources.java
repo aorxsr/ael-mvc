@@ -15,21 +15,24 @@ public class ReadStaticResources {
     int size;
     ByteBuf byteBuf;
 
-    public ReadStaticResources(InputStream inputStream) throws IOException {
+    public ReadStaticResources(InputStream inputStream) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byteBuf = Unpooled.buffer();
         size = 0;
+        try {
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buffer)) > -1) {
+                size += len;
+                byteArrayOutputStream.write(buffer, 0, len);
+            }
+            byteArrayOutputStream.flush();
 
-        byte[] buffer = new byte[1024];
-        int len;
-        while ((len = inputStream.read(buffer)) > -1) {
-            size += len;
-            byteArrayOutputStream.write(buffer, 0, len);
+            inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+            byteBuf.writeBytes(inputStream, size);
+        } catch (IOException e) {
+            return;
         }
-        byteArrayOutputStream.flush();
-
-        inputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-        byteBuf.writeBytes(inputStream, size);
     }
 
     public String getSizeString() {

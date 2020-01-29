@@ -5,27 +5,19 @@ import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.ael.mvc.Ael;
 import org.ael.mvc.annotation.*;
-import org.ael.mvc.commons.StringUtils;
 import org.ael.mvc.constant.HttpConstant;
 import org.ael.mvc.constant.HttpMethodConstant;
 import org.ael.mvc.constant.RouteTypeConstant;
-import org.ael.mvc.container.exception.RequestParamRequiredException;
-import org.ael.mvc.enhance.EnhanceInfo;
 import org.ael.mvc.handler.init.AbstractInitHandler;
 import org.ael.mvc.http.Request;
 import org.ael.mvc.http.Response;
 import org.ael.mvc.http.WebContent;
-import org.ael.mvc.http.body.StringBody;
-import org.ael.mvc.http.body.ViewBody;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -145,20 +137,6 @@ public class RouteHandler extends AbstractInitHandler {
         String key = method.toUpperCase() + "#" + uri;
 
         try {
-            // 拦截器
-            EnhanceInfo enhanceInfo = ael.getEnhanceHandler().executeEnhanceHandler(webContent);
-            if (null != enhanceInfo) {
-                // 前置
-                Method beforeMethod = enhanceInfo.getBeforeMethod();
-                if (null != beforeMethod) {
-                    Object invoke = beforeMethod.invoke(enhanceInfo.getTarget(), webContent);
-                    if (null != invoke) {
-                        if (!(boolean) invoke) {
-                            return webContent;
-                        }
-                    }
-                }
-            }
             // 判断是否是 静态资源文件...
             if (isStatics(uri)) {
                 webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
@@ -182,13 +160,6 @@ public class RouteHandler extends AbstractInitHandler {
                 } else {
                     response.setStatus(500);
                     response.text(" No Mapping " + uri);
-                }
-            }
-            if (null != enhanceInfo) {
-                // 后置
-                Method afterMethod = enhanceInfo.getAfterMethod();
-                if (null != afterMethod) {
-                    afterMethod.invoke(enhanceInfo.getTarget(), webContent);
                 }
             }
         } catch (Exception e) {

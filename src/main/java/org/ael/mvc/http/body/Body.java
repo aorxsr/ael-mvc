@@ -10,6 +10,6 @@ import java.io.IOException;
  */
 public interface Body {
 
-	FullHttpResponse body(BodyWrite write) throws IOException;
+    FullHttpResponse body(BodyWrite write) throws IOException;
 
 }

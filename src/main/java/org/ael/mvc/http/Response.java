@@ -32,6 +32,8 @@ public interface Response {
 
 	void addHeader(String key, String value);
 
+	void addHeader(String key, int value);
+
 	void removeHeader(String key);
 
 	String getContentType();

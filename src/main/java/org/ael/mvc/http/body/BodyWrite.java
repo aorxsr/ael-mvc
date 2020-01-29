@@ -11,10 +11,10 @@ import java.io.IOException;
  */
 public interface BodyWrite {
 
-	FullHttpResponse onView(ViewBody body) throws IOException;
+    FullHttpResponse onView(ViewBody body) throws IOException;
 
-	FullHttpResponse onByteBuf(Object byteBuf);
+    FullHttpResponse onByteBuf(Object byteBuf);
 
-	FullHttpResponse onByteBuf(ByteBuf byteBuf);
+    FullHttpResponse onByteBuf(ByteBuf byteBuf);
 
 }

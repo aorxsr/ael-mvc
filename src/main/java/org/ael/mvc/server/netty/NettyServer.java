@@ -2,10 +2,7 @@ package org.ael.mvc.server.netty;
 
 import cn.hutool.core.util.ClassUtil;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.DefaultEventLoop;
-import io.netty.channel.EventLoop;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.ael.mvc.Ael;
@@ -49,9 +46,6 @@ public class NettyServer implements Server {
     public void start(Ael ael) {
         this.ael = ael;
         init();
-        //
-        ael.getContainer().initContainer();
-
         WebContent.setAel(ael);
 
         ael.getAelTemplate().init(ael);
@@ -68,6 +62,7 @@ public class NettyServer implements Server {
         new Thread(() -> {
             try {
                 future = serverBootstrap.channel(NioServerSocketChannel.class)
+                        .option(ChannelOption.SO_KEEPALIVE, true)
                         .childHandler(new InitialHandler())
                         .bind(7788)
                         .sync()
@@ -87,11 +82,6 @@ public class NettyServer implements Server {
 
         List<String> scanPackage = ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList());
         scanPackage.add("org.ael.mvc");
-        scanPackage.forEach(scan -> {
-            Set<Class<?>> classes = ClassUtil.scanPackage(scan);
-            ael.addScanClass(RouteHandler.class);
-            ael.addScanClass(classes);
-        });
 
         // 获取所有 @Configuration 类
         Class<Configuration> configuration = Configuration.class;
