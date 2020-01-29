@@ -4,6 +4,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.ael.commons.ClassUtils;
 import org.ael.handler.init.AbstractInitHandler;
 import org.ael.Ael;
 import org.ael.annotation.Configuration;
@@ -78,12 +79,13 @@ public class NettyServer implements Server {
         ael.getEnvironment().initConfig();
 
         List<String> scanPackage = ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList());
-        scanPackage.add("org.ael.mvc");
+        scanPackage.add("org.ael");
+        ael.getEnvironment().put(EnvironmentConstant.SCAN_PACKAGE, scanPackage);
 
         // 获取所有 @Configuration 类
         Class<Configuration> configuration = Configuration.class;
         Class<AbstractInitHandler> initHandler = AbstractInitHandler.class;
-        ael.getScanClass()
+        ClassUtils.getClasss(scanPackage, configuration)
                 .stream()
                 .filter(aClass -> configHandler(configuration, initHandler, aClass))
                 .sorted((aClass, bClass) -> {

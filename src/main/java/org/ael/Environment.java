@@ -150,7 +150,6 @@ public class Environment implements Map<String, Object> {
                 if (null == classPathFile) {
                     return;
                 }
-                properties.clear();
                 properties.load(classPathFile);
                 properties.forEach((k, v) -> {
                     map.put(k.toString(), v);

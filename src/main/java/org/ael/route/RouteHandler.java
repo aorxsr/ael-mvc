@@ -1,18 +1,15 @@
 package org.ael.route;
 
+import cn.hutool.core.util.IdUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.internal.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.ael.annotation.Configuration;
-import org.ael.annotation.Controller;
-import org.ael.annotation.GetMapping;
-import org.ael.annotation.PostMapping;
-import org.ael.constant.HttpConstant;
+import org.ael.c.c.CHandler;
+import org.ael.commons.StringUtils;
 import org.ael.constant.RouteTypeConstant;
 import org.ael.handler.init.AbstractInitHandler;
 import org.ael.Ael;
-import org.ael.mvc.annotation.*;
-import org.ael.constant.HttpMethodConstant;
 import org.ael.http.Request;
 import org.ael.http.Response;
 import org.ael.http.WebContent;
@@ -22,7 +19,10 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 /**
  * @Author: aorxsr
@@ -36,6 +36,59 @@ public class RouteHandler extends AbstractInitHandler {
     private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Route> routeHandlers = new ConcurrentHashMap<>();
 
+    /**
+     * 1. URL
+     * HttpMethod List<Pattern/>
+     */
+    // HttpMethod Reg
+    private ConcurrentHashMap<String, List<RegexRoute>> rrMap = new ConcurrentHashMap<String, List<RegexRoute>>(16) {{
+        put("GET", new ArrayList<>(16));
+        put("POST", new ArrayList<>(16));
+        put("PUT", new ArrayList<>(16));
+        put("DELETE", new ArrayList<>(16));
+    }};
+
+    // UUID Route
+    private ConcurrentHashMap<Integer, Route> routeMap = new ConcurrentHashMap<>(16);
+
+    // AtomInt
+    private AtomicInteger atomicInteger = new AtomicInteger();
+
+
+    public void addHandler(String httpMethod, String url, RouteFunctionHandler routeFunctionHandler) {
+        List<RegexRoute> regexRoutes = rrMap.get(httpMethod);
+
+        Route route = Route.builder()
+                .httpMethod(httpMethod)
+                .classType(routeFunctionHandler.getClass())
+                .path(url)
+                .routeFunctionHandler(routeFunctionHandler)
+                .routeType(RouteTypeConstant.ROUTE_TYPE_FUNCTION)
+                .build();
+        putRegexAndRoute(url, regexRoutes, httpMethod, route);
+
+        log.info(httpMethod + "#" + url);
+    }
+
+    private String urlToPattern(String url) {
+        StringBuffer sub = new StringBuffer("(/");
+        // 分割
+        String[] split = url.split("/");
+        for (String s : split) {
+            if (StringUtils.isNotEmpty(s)) {
+                // 使用? PathParam
+                if (s.contains("?")) {
+                    sub.append("([^/]+)/");
+                } else {
+                    sub.append(s + "/");
+                }
+            }
+        }
+        sub.deleteCharAt(sub.length() - 1);
+        sub.append(")|");
+        return sub.toString();
+    }
+
     @Override
     public void init(Ael ael) {
         this.ael = ael;
@@ -47,88 +100,53 @@ public class RouteHandler extends AbstractInitHandler {
             log.error(e.getMessage());
         }
         WebContent.ael = this.ael;
-        WebContent.ael.setRouteHandler(this);
+        // console all url...
+        routeHandlers.forEach((k, v) -> log.info(k));
     }
 
     public void scanLocalCLass() throws IllegalAccessException, InstantiationException {
-        for (Class<?> clazz : ael.getScanClass()) {
-            Controller controller = clazz.getAnnotation(Controller.class);
-            if (null == controller) {
-                continue;
-            }
+        CHandler cHandler = new CHandler(ael);
+        ConcurrentHashMap<String, Route> execute = cHandler.execute();
+        Iterator<String> keyIterator = execute.keySet().iterator();
+        while (keyIterator.hasNext()) {
+            String next = keyIterator.next();
 
-            String controllerUrl;
+            Route route = execute.get(next);
+            String httpMethod = route.getHttpMethod();
 
-            GetMapping getMapping = clazz.getAnnotation(GetMapping.class);
-            PostMapping postMapping = clazz.getAnnotation(PostMapping.class);
-            if (null == getMapping) {
-                if (null == postMapping) {
-                    continue;
-                } else {
-                    controllerUrl = postMapping.value();
-                }
-            } else {
-                controllerUrl = getMapping.value();
-            }
-            // 获取所有方法
-            Method[] methods = clazz.getMethods();
-            for (Method method : methods) {
-                GetMapping getMethod = method.getAnnotation(GetMapping.class);
-                if (null == getMethod) {
-                    PostMapping postMethod = method.getAnnotation(PostMapping.class);
-                    if (null == postMethod) {
-                        continue;
-                    } else {
-                        String methodUrl = postMethod.value();
-                        if (StringUtil.isNullOrEmpty(methodUrl)) {
-                            continue;
-                        }
-                        addRoute(HttpMethodConstant.POST_UPPER, controllerUrl + methodUrl, clazz, method, getMethod.contentType());
-                    }
-                } else {
-                    // Get方法,
-                    String methodUrl = getMethod.value();
-                    if (StringUtil.isNullOrEmpty(methodUrl)) {
-                        continue;
-                    }
-                    addRoute(HttpMethodConstant.GET_UPPER, controllerUrl + methodUrl, clazz, method, getMethod.contentType());
-                }
-            }
+            List<RegexRoute> regexRoutes = rrMap.get(httpMethod);
+
+            String path = route.getPath();
+            // 将URL格式化成正则表达式
+            putRegexAndRoute(path, regexRoutes, httpMethod, route);
         }
     }
 
-    private void addRoute(String methodType, String newUrl, Class<?> clazz, Method method, String contentType) throws IllegalAccessException, InstantiationException {
-        routeHandlers.put(methodType + HttpConstant.WELL + newUrl, Route.builder()
-                .target(clazz.newInstance())
-                .classType(clazz)
-                .httpMethod(HttpMethodConstant.POST_UPPER)
-                .path(newUrl)
-                .routeType(RouteTypeConstant.ROUTE_TYPE_CLASS)
-                .method(method)
-                .contentType(contentType)
-                .build());
+    private void putRegexAndRoute(String path, List<RegexRoute> regexRoutes, String httpMethod, Route route) {
+        String pattern = urlToPattern(path);
+        int atomInt = atomicInteger.get();
+        RegexRoute regexRoute = RegexRoute
+                .builder()
+                .pattern(Pattern.compile(pattern))
+                .atomInt(atomInt)
+                .build();
+        regexRoutes.add(regexRoute);
+        rrMap.put(httpMethod, regexRoutes);
+        routeMap.put(atomInt, route);
 
-        log.info(methodType + " : " + newUrl);
+        log.info(httpMethod + "#" + path);
     }
 
-    public void addHandler(String method, String url, RouteFunctionHandler routeFunctionHandler) {
-        String newUrl = method.toUpperCase() + "#" + url;
-        log.info(method + " : " + url);
-
-        if (routeHandlers.containsKey(newUrl)) {
-            log.error("url:" + newUrl + " contains...");
+    private Integer getAutomInt(String method, String url) {
+        List<RegexRoute> regexRoutes = rrMap.get(method);
+        Optional<RegexRoute> first = regexRoutes.stream()
+                .filter(regexRoute -> regexRoute.matching(url))
+                .findFirst();
+        if (first.isPresent()) {
+            return first.get().getAtomInt();
         } else {
-            // put
-            handlers.put(newUrl, routeFunctionHandler);
-            routeHandlers.put(newUrl, Route.builder()
-                    .httpMethod(method)
-                    .classType(routeFunctionHandler.getClass())
-                    .path(url)
-                    .routeFunctionHandler(routeFunctionHandler)
-                    .routeType(RouteTypeConstant.ROUTE_TYPE_FUNCTION)
-                    .build());
+            return null;
         }
-
     }
 
     public WebContent executeHandler(WebContent webContent) {
@@ -145,9 +163,9 @@ public class RouteHandler extends AbstractInitHandler {
             if (isStatics(uri)) {
                 webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
             } else {
-                if (WebContent.ael.getRouteHandler().routeHandlers.containsKey(key)) {
-                    // enhance constant
-                    Route route = WebContent.ael.getRouteHandler().routeHandlers.get(key);
+                Integer automInt = getAutomInt(method, uri);
+                if (null != automInt) {
+                    Route route = routeMap.get(automInt);
                     if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
                         route.getRouteFunctionHandler().handler(webContent);
                     } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
@@ -176,7 +194,6 @@ public class RouteHandler extends AbstractInitHandler {
 
         return webContent;
     }
-
 
     private boolean isObjectType(Type type) {
         return type == Request.class ||

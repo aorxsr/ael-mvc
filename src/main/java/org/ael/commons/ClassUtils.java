@@ -1,13 +1,15 @@
 package org.ael.commons;
 
+import cn.hutool.core.util.ClassUtil;
+import org.ael.c.annotation.Controller;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -153,6 +155,12 @@ public class ClassUtils {
                 }
             }
         }
+    }
+
+    public static List<Class<?>> getClasss(List<String> classes, Class<? extends Annotation> annotationClass) {
+        List<Class<?>> classs = new ArrayList<>();
+        classes.forEach(s -> classs.addAll(ClassUtil.scanPackageByAnnotation(s, annotationClass)));
+        return classs;
     }
 
 }

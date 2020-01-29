@@ -149,6 +149,15 @@ public class HttpRequest implements Request {
     }
 
     @Override
+    public Object getPathParam(String name) {
+        if (parameters.containsKey(name)) {
+            return parameters.get(name);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public boolean isUseGZIP() {
         if (WebContent.ael.getEnvironment().getBoolean(EnvironmentConstant.HTTP_ZIP, false)) {
             return false;

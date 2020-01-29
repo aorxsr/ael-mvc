@@ -13,18 +13,18 @@ import java.lang.reflect.Method;
 @Builder
 public class Route {
 
-	private String path;
-	private String httpMethod;
+    private String path;
+    private String httpMethod;
 
-	private Class<?> classType;
+    private Class<?> classType;
 
-	private Object target;
-	private Method method;
+    private Object target;
+    private Method method;
 
-	private String contentType;
+    private String contentType;
 
-	private int routeType;
+    private int routeType;
 
-	private RouteFunctionHandler routeFunctionHandler;
+    private RouteFunctionHandler routeFunctionHandler;
 
 }

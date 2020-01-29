@@ -1,4 +1,4 @@
-package org.ael.annotation;
+package org.ael.c.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -14,8 +14,6 @@ import java.lang.annotation.Target;
 public @interface GetMapping {
 
 	String value() default "";
-
-	String description() default "";
 
 	String contentType() default "text/html";
 

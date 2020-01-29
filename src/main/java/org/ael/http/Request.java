@@ -15,95 +15,97 @@ import java.util.Map;
  */
 public interface Request {
 
-	String getMethod();
+    String getMethod();
 
-	String getUri();
+    String getUri();
 
-	String getHost();
+    String getHost();
 
-	String getRemoteAddress();
+    String getRemoteAddress();
 
-	String getUrl();
+    String getUrl();
 
-	Object getParameter(String name);
+    Object getParameter(String name);
 
-	Map<String, List<String>> getParameters();
+    Map<String, List<String>> getParameters();
 
-	boolean isUseGZIP();
+    Object getPathParam(String name);
 
-	Session getSession();
+    boolean isUseGZIP();
 
-	boolean isASESSION();
+    Session getSession();
 
-	void setASESSION(boolean asession);
+    boolean isASESSION();
 
-	default String contentType() {
-		String contentType = header(HttpConstant.CONTENT_TYPE);
-		return null != contentType ? contentType : "Unknown";
-	}
+    void setASESSION(boolean asession);
 
-	default boolean isIE() {
-		String ua = userAgent();
-		return ua.contains("MSIE") || ua.contains("TRIDENT");
-	}
+    default String contentType() {
+        String contentType = header(HttpConstant.CONTENT_TYPE);
+        return null != contentType ? contentType : "Unknown";
+    }
 
-	default boolean isAjax() {
-		return "XMLHttpRequest".equals(header("X-Requested-With")) || "XMLHttpRequest".equals(header("x-requested-with"));
-	}
+    default boolean isIE() {
+        String ua = userAgent();
+        return ua.contains("MSIE") || ua.contains("TRIDENT");
+    }
 
-	default String userAgent() {
-		return header(HttpConstant.USER_AGENT);
-	}
+    default boolean isAjax() {
+        return "XMLHttpRequest".equals(header("X-Requested-With")) || "XMLHttpRequest".equals(header("x-requested-with"));
+    }
 
-	Map<String, Cookie> cookies();
+    default String userAgent() {
+        return header(HttpConstant.USER_AGENT);
+    }
 
-	default String getCookieValue(@NonNull String name) {
-		Cookie cookie = cookies().get(name);
-		return null == cookie ? null : cookie.value();
-	}
+    Map<String, Cookie> cookies();
 
-	default Cookie getCookie(@NonNull String name) {
-		return cookies().get(name);
-	}
+    default String getCookieValue(@NonNull String name) {
+        Cookie cookie = cookies().get(name);
+        return null == cookie ? null : cookie.value();
+    }
 
-	Request setCookie(Cookie cookie);
+    default Cookie getCookie(@NonNull String name) {
+        return cookies().get(name);
+    }
 
-	Map<String, String> getHeaders();
+    Request setCookie(Cookie cookie);
 
-	default String header(@NonNull String name) {
-		String header = "";
-		if (getHeaders().containsKey(name)) {
-			header = getHeaders().get(name);
-		} else if (getHeaders().containsKey(name.toLowerCase())) {
-			header = getHeaders().get(name.toLowerCase());
-		}
-		return header;
-	}
+    Map<String, String> getHeaders();
 
-	boolean isKeepAlive();
+    default String header(@NonNull String name) {
+        String header = "";
+        if (getHeaders().containsKey(name)) {
+            header = getHeaders().get(name);
+        } else if (getHeaders().containsKey(name.toLowerCase())) {
+            header = getHeaders().get(name.toLowerCase());
+        }
+        return header;
+    }
 
-	Map<String, Object> getAttributes();
+    boolean isKeepAlive();
 
-	default Request getAttribute(@NonNull String name, Object value) {
-		this.getAttributes().put(name, value);
-		return this;
-	}
+    Map<String, Object> getAttributes();
 
-	default <T> T getAttribute(String name) {
-		if (null == name) {
-			return null;
-		}
-		Object object = getAttributes().get(name);
-		return null != object ? (T) object : null;
-	}
+    default Request getAttribute(@NonNull String name, Object value) {
+        this.getAttributes().put(name, value);
+        return this;
+    }
+
+    default <T> T getAttribute(String name) {
+        if (null == name) {
+            return null;
+        }
+        Object object = getAttributes().get(name);
+        return null != object ? (T) object : null;
+    }
 
 
-	boolean isMultipart();
+    boolean isMultipart();
 
-	ByteBuf body();
+    ByteBuf body();
 
-	default String bodyToString() {
-		return this.body().toString(CharsetUtil.UTF_8);
-	}
+    default String bodyToString() {
+        return this.body().toString(CharsetUtil.UTF_8);
+    }
 
 }
