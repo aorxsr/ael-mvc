@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.ael.c.annotation.MultiPartFileParam;
-import org.ael.c.annotation.PathParam;
-import org.ael.c.annotation.RequestBody;
-import org.ael.c.annotation.RequestParam;
+import org.ael.c.annotation.*;
 import org.ael.c.c.CHandler;
 import org.ael.commons.StringUtils;
 import org.ael.constant.RouteTypeConstant;
@@ -15,6 +12,7 @@ import org.ael.Ael;
 import org.ael.http.Request;
 import org.ael.http.Response;
 import org.ael.http.WebContent;
+import org.ael.http.body.EmptyBody;
 import org.ael.route.asm.ASMUtils;
 
 import java.io.PrintWriter;
@@ -165,16 +163,34 @@ public class RouteHandler {
 
                             for (int i = 0; i < methodParamNames.length; i++) {
                                 String paramName = methodParamNames[i];
-                                Object object = objects[i];
                                 Parameter parameter = parameters[i];
 
                                 if (isAnnParam(parameter)) {
-                                    object = getAnnParam(request, parameter);
+                                    objects[i] = getAnnParam(request, parameter);
                                 }
-
                             }
+                            Object invoke = method.invoke(route.getTarget(), objects);
 
-                            method.invoke(route.getTarget(), objects);
+                            ResponseBody responseBody = method.getAnnotation(ResponseBody.class);
+                            if (null == responseBody) {
+                                // 判断是否有返回值
+                                if (null == invoke) {
+                                    // 只返回响应头
+                                    response.write(new EmptyBody());
+                                } else {
+                                    if (invoke instanceof String) {
+                                        response.html(invoke.toString());
+                                    } else {
+                                        throw new RuntimeException("不确定的返回值");
+                                    }
+                                }
+                            } else {
+                                if (invoke instanceof String) {
+                                    response.json(invoke.toString());
+                                } else {
+                                    response.json(JSONObject.toJSONString(invoke));
+                                }
+                            }
                         } catch (IllegalAccessException e) {
                             log.info(e.getMessage());
                         } catch (InvocationTargetException e) {

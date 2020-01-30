@@ -31,7 +31,7 @@ public class HttpRequest implements Request {
     private String url;
     private String host;
     private String method;
-    private ByteBuf body = Unpooled.buffer();
+    private ByteBuf body = null;
 
     private boolean asession = true;
     private boolean keepAlive;
@@ -51,7 +51,7 @@ public class HttpRequest implements Request {
     }
 
     public void appendHttpContent(HttpContent content) {
-        contents.add(content.retain());
+        this.contents.add(content.retain());
     }
 
     /**
@@ -93,9 +93,12 @@ public class HttpRequest implements Request {
         if (HttpMethod.GET.name().equalsIgnoreCase(method)) {
             return;
         }
+
         // Not Get Method
         if (this.contents.size() != 0) {
-            this.body = Unpooled.copiedBuffer(new ArrayList<ByteBuf>(contents.size()).toArray(new ByteBuf[0]));
+            ArrayList<ByteBuf> byteBufs = new ArrayList<>(contents.size());
+            this.contents.forEach(httpContent -> byteBufs.add(httpContent.content().copy()));
+            this.body = Unpooled.copiedBuffer(byteBufs.toArray(new ByteBuf[0]));
         }
     }
 

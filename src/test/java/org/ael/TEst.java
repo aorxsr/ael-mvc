@@ -1,5 +1,6 @@
 package org.ael;
 
+import com.alibaba.fastjson.JSONObject;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -37,6 +38,15 @@ public class TEst {
             System.out.println(type.getTypeName());
 
         }
+
+
+    }
+
+    @Test
+    public void jsonTest() {
+        String s = "asdf";
+
+        System.out.println(JSONObject.toJSONString(""));
 
 
     }

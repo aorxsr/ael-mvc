@@ -6,15 +6,17 @@ import org.ael.c.annotation.*;
 @RequestMapping(value = "")
 public class HelloController {
 
+    @ResponseBody
     @GetMapping(value = "/helloWord")
     public String helloWord() {
         return "helloWord";
     }
 
+    @ResponseBody
     @PostMapping(value = "/post")
-    public String post(@RequestBody User user) {
+    public Object post(@RequestBody User user) {
         System.out.println(user.getName());
-        return "asdf";
+        return user;
     }
 
 }
