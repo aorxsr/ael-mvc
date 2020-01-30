@@ -1,6 +1,7 @@
 package org.ael.http;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpUtil;
@@ -13,11 +14,7 @@ import org.ael.constant.HttpConstant;
 import org.ael.http.session.SessionHandler;
 import org.ael.constant.EnvironmentConstant;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * @Author: aorxsr
@@ -34,6 +31,7 @@ public class HttpRequest implements Request {
     private String url;
     private String host;
     private String method;
+    private ByteBuf body = Unpooled.buffer();
 
     private boolean asession = true;
     private boolean keepAlive;
@@ -95,7 +93,10 @@ public class HttpRequest implements Request {
         if (HttpMethod.GET.name().equalsIgnoreCase(method)) {
             return;
         }
-
+        // Not Get Method
+        if (this.contents.size() != 0) {
+            this.body = Unpooled.copiedBuffer(new ArrayList<ByteBuf>(contents.size()).toArray(new ByteBuf[0]));
+        }
     }
 
     @Override
@@ -218,7 +219,7 @@ public class HttpRequest implements Request {
 
     @Override
     public ByteBuf body() {
-        return null;
+        return this.body;
     }
 
 }

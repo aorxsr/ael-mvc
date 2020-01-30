@@ -21,14 +21,14 @@ import java.lang.annotation.Target;
 
 /**
  * @Author aorxsr
- * @Date 2020/1/29
+ * @Date 2020/1/30
  */
-@Target(value = {ElementType.METHOD, ElementType.TYPE})
+@Target(value = ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RequestMapping {
+public @interface PathParam {
 
-    String value() default "";
+    String name() default "";
 
-    String contentType() default "text/html";
+    boolean required() default false;
 
 }

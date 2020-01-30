@@ -1,7 +1,13 @@
 package org.ael.route;
 
+import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.ael.c.annotation.MultiPartFileParam;
+import org.ael.c.annotation.PathParam;
+import org.ael.c.annotation.RequestBody;
+import org.ael.c.annotation.RequestParam;
 import org.ael.c.c.CHandler;
 import org.ael.commons.StringUtils;
 import org.ael.constant.RouteTypeConstant;
@@ -9,11 +15,11 @@ import org.ael.Ael;
 import org.ael.http.Request;
 import org.ael.http.Response;
 import org.ael.http.WebContent;
+import org.ael.route.asm.ASMUtils;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -122,6 +128,7 @@ public class RouteHandler {
 
         log.info(httpMethod + "#" + path);
     }
+
     // ^(/api_test/([^/]+))$
     private Integer getAutomInt(String method, String url) {
         List<RegexRoute> regexRoutes = rrMap.get(method);
@@ -138,25 +145,36 @@ public class RouteHandler {
     public WebContent executeHandler(WebContent webContent) {
         Request request = webContent.getRequest();
         Response response = webContent.getResponse();
-
         String uri = request.getUri();
-
-        String method = request.getMethod();
-        String key = method.toUpperCase() + "#" + uri;
-
         try {
             // 判断是否是 静态资源文件...
             if (isStatics(uri)) {
                 webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
             } else {
-                Integer automInt = getAutomInt(method, uri);
+                Integer automInt = getAutomInt(request.getMethod(), uri);
                 if (null != automInt) {
                     Route route = routeMap.get(automInt);
                     if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
                         route.getRouteFunctionHandler().handler(webContent);
                     } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
                         try {
-                            route.getMethod().invoke(route.getTarget(), webContent);
+                            Method method = route.getMethod();
+                            String[] methodParamNames = ASMUtils.getMethodParamNames(route.getClassType(), method);
+                            Parameter[] parameters = method.getParameters();
+                            Object[] objects = new Object[parameters.length];
+
+                            for (int i = 0; i < methodParamNames.length; i++) {
+                                String paramName = methodParamNames[i];
+                                Object object = objects[i];
+                                Parameter parameter = parameters[i];
+
+                                if (isAnnParam(parameter)) {
+                                    object = getAnnParam(request, parameter);
+                                }
+
+                            }
+
+                            method.invoke(route.getTarget(), objects);
                         } catch (IllegalAccessException e) {
                             log.info(e.getMessage());
                         } catch (InvocationTargetException e) {
@@ -210,6 +228,31 @@ public class RouteHandler {
                 type.equals(float.class) || type.equals(short.class) ||
                 type.equals(boolean.class) || type.equals(byte.class) ||
                 type.equals(char.class);
+    }
+
+    private boolean isAnnParam(Parameter parameter) {
+        return parameter.isAnnotationPresent(PathParam.class)
+                || parameter.isAnnotationPresent(RequestParam.class)
+                || parameter.isAnnotationPresent(RequestBody.class)
+                || parameter.isAnnotationPresent(MultiPartFileParam.class);
+    }
+
+    private Object getAnnParam(Request request, Parameter parameter) {
+        if (parameter.isAnnotationPresent(RequestBody.class)) {
+            String body = request.body().toString(CharsetUtil.UTF_8);
+            return StringUtils.isEmpty(body) ? null : JSONObject.parseObject(body, parameter.getType());
+        } else if (parameter.isAnnotationPresent(PathParam.class)) {
+            // 找URL中的值
+            return null;
+        } else if (parameter.isAnnotationPresent(RequestParam.class)) {
+            // 找参数中的值
+            return null;
+        } else if (parameter.isAnnotationPresent(MultiPartFileParam.class)) {
+            // 上传的文件
+            return null;
+        } else {
+            return null;
+        }
     }
 
     private boolean isStatics(String uri) {

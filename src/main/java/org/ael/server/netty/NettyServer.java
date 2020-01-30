@@ -4,6 +4,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 import org.ael.Ael;
 import org.ael.http.WebContent;
 import org.ael.http.session.SessionClearHandler;
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @Author: aorxsr
  * @Date: 2019/7/16 18:19
  */
+@Slf4j
 public class NettyServer implements Server {
 
     private ServerBootstrap serverBootstrap;
@@ -37,18 +39,12 @@ public class NettyServer implements Server {
         this.ael = ael;
         init();
         WebContent.setAel(ael);
-
         ael.getAelTemplate().init(ael);
-
-        try {
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> this.stop()));
-            startServer();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> this.stop()));
+        startServer();
     }
 
-    private void startServer() throws InterruptedException {
+    private void startServer() {
         new Thread(() -> {
             try {
                 future = serverBootstrap.channel(NioServerSocketChannel.class)
@@ -63,7 +59,7 @@ public class NettyServer implements Server {
                 e.printStackTrace();
             }
         }).start();
-        System.out.println("open in browser http://127.0.0.1:7788 ");
+        log.info("open in browser http://127.0.0.1:7788");
     }
 
     private void init() {

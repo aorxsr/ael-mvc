@@ -16,6 +16,10 @@
         <lombok.version>1.18.8</lombok.version>
         <netty.version>4.1.45.Final</netty.version>
         <hutool.version>4.5.8</hutool.version>
+        <asm.version>5.1</asm.version>
+        <!-- JSON解析器暂时使用FastJson,后续自己试下一个. -->
+        <fastjson.version>1.2.62</fastjson.version>
+
     </properties>
 
     <dependencies>
@@ -45,6 +49,17 @@
             <artifactId>ael-log</artifactId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-all</artifactId>
+            <version>${asm.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+
     </dependencies>
 
     <repositories>

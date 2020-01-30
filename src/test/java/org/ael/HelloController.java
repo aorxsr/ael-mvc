@@ -1,10 +1,9 @@
 package org.ael;
 
-import org.ael.c.annotation.Controller;
-import org.ael.c.annotation.GetMapping;
+import org.ael.c.annotation.*;
 
 @Controller
-@GetMapping(value = "")
+@RequestMapping(value = "")
 public class HelloController {
 
     @GetMapping(value = "/helloWord")
@@ -12,4 +11,22 @@ public class HelloController {
         return "helloWord";
     }
 
+    @PostMapping(value = "/post")
+    public String post(@RequestBody User user) {
+        System.out.println(user.getName());
+        return "asdf";
+    }
+
+}
+
+class User {
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

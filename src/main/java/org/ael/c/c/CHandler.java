@@ -74,7 +74,7 @@ public class CHandler {
                             buildRoute(controllerUrl, requestMapping.value(), clazz, method, requestMapping.contentType(), HttpMethodConstant.ALL_UPPER);
                         }
                     } else {
-                        buildRoute(controllerUrl, postMethod.value(), clazz, method, getMethod.contentType(), HttpMethodConstant.POST_UPPER);
+                        buildRoute(controllerUrl, postMethod.value(), clazz, method, postMethod.contentType(), HttpMethodConstant.POST_UPPER);
                     }
                 } else {
                     buildRoute(controllerUrl, getMethod.value(), clazz, method, getMethod.contentType(), HttpMethodConstant.GET_UPPER);
