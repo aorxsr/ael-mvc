@@ -31,17 +31,8 @@ import java.util.regex.Pattern;
 public class RouteHandler {
 
     public RouteHandler(Ael ael) {
-        try {
-            this.ael = ael;
-            scanLocalCLass();
-        } catch (IllegalAccessException e) {
-            log.error(e.getMessage());
-        } catch (InstantiationException e) {
-            log.error(e.getMessage());
-        }
+        this.ael = ael;
         WebContent.ael = this.ael;
-        // console all url...
-        routeHandlers.forEach((k, v) -> log.info(k));
     }
 
     private Ael ael;
@@ -98,17 +89,24 @@ public class RouteHandler {
     }
 
 
-    void scanLocalCLass() throws IllegalAccessException, InstantiationException {
-        CHandler cHandler = new CHandler(ael);
-        ConcurrentHashMap<String, Route> execute = cHandler.execute();
-        Iterator<String> keyIterator = execute.keySet().iterator();
-        while (keyIterator.hasNext()) {
-            String next = keyIterator.next();
+    public void init() {
+        try {
+            CHandler cHandler = new CHandler(ael);
+            ConcurrentHashMap<String, Route> execute = cHandler.execute();
+            Iterator<String> keyIterator = execute.keySet().iterator();
+            while (keyIterator.hasNext()) {
+                String next = keyIterator.next();
 
-            Route route = execute.get(next);
-            String httpMethod = route.getHttpMethod();
+                Route route = execute.get(next);
+                String httpMethod = route.getHttpMethod();
 
-            putRegexAndRoute(route.getPath(), rrMap.get(httpMethod), httpMethod, route);
+                putRegexAndRoute(route.getPath(), rrMap.get(httpMethod), httpMethod, route);
+            }
+            routeHandlers.forEach((k, v) -> log.info(k));
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
         }
     }
 
@@ -169,7 +167,7 @@ public class RouteHandler {
                                     objects[i] = getAnnParam(request, parameter);
                                 }
                             }
-                            Object invoke = method.invoke(route.getTarget(), objects);
+                            Object invoke = method.invoke(ael.getIocPlugin().getBean(route.getClassType()), objects);
 
                             ResponseBody responseBody = method.getAnnotation(ResponseBody.class);
                             if (null == responseBody) {

@@ -20,9 +20,15 @@
         <!-- JSON解析器暂时使用FastJson,后续自己试下一个. -->
         <fastjson.version>1.2.62</fastjson.version>
 
+        <ael-ioc.version>0.1.0</ael-ioc.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.github.aorxsr</groupId>
+            <artifactId>ael-ioc</artifactId>
+            <version>${ael-ioc.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

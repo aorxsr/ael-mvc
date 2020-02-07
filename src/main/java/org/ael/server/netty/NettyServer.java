@@ -1,18 +1,26 @@
 package org.ael.server.netty;
 
+import cn.hutool.core.util.ClassUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.ael.Ael;
+import org.ael.constant.EnvironmentConstant;
 import org.ael.http.WebContent;
 import org.ael.http.session.SessionClearHandler;
+import org.ael.ioc.core.util.ClsUtil;
 import org.ael.server.Server;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @Author: aorxsr
@@ -75,6 +83,18 @@ public class NettyServer implements Server {
         serverBootstrap = new ServerBootstrap();
         // 初始化配置
         serverBootstrap.group(work, boss);
+
+        // 扫描包下面所有的类
+        List<String> list = this.ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList<String>());
+
+        Set<Class<?>> scanClasss = new HashSet<>(16);
+        list.forEach(bap -> ClsUtil.getClasses(bap).forEach(cls -> scanClasss.add(cls)));
+        this.ael.setScanClass(scanClasss);
+
+        ael.getRouteHandler().init();
+
+        // ioc init
+        ael.getIocPlugin().initIoc(ael);
     }
 
     @Override

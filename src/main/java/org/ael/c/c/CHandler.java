@@ -28,6 +28,7 @@ import org.ael.route.Route;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CHandler {
@@ -46,11 +47,11 @@ public class CHandler {
     }
 
     public ConcurrentHashMap<String, Route> execute() throws IllegalAccessException, InstantiationException {
-        List<String> scans = ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList());
-        if (scans.isEmpty()) {
-            return routeHandlers;
-        }
-        List<Class<?>> classs = ClassUtils.getClasss(scans, Controller.class);
+//        List<String> scans = ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList());
+//        if (scans.isEmpty()) {
+//            return routeHandlers;
+//        }
+        Set<Class<?>> classs = ael.getScanClass();
 
         for (Class<?> clazz : classs) {
             String controllerUrl = "";

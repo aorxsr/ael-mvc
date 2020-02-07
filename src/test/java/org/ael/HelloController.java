@@ -1,14 +1,20 @@
 package org.ael;
 
 import org.ael.c.annotation.*;
+import org.ael.ioc.core.annotation.Injection;
 
 @Controller
 @RequestMapping(value = "")
 public class HelloController {
 
+    @Injection
+    private TestBean testBean;
+
     @ResponseBody
     @GetMapping(value = "/helloWord")
     public String helloWord() {
+        testBean.testConsole();
+
         return "helloWord";
     }
 
