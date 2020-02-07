@@ -1,6 +1,7 @@
 package org.ael;
 
 import org.ael.c.annotation.*;
+import org.ael.http.MultiPartFile;
 import org.ael.ioc.core.annotation.Injection;
 
 @Controller
@@ -25,9 +26,23 @@ public class HelloController {
         return user;
     }
 
+    @GetMapping(value = "index")
+    public String index(@PathParam(required = true) String pathParam) {
+        System.out.println(pathParam);
+        return "index";
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/upload")
+    public String uploadFile(@MultiPartFileParam(name = "wenjian") MultiPartFile file) {
+        System.out.println(file);
+        return file.getFileName();
+    }
+
 }
 
 class User {
+
     private String name;
 
     public String getName() {

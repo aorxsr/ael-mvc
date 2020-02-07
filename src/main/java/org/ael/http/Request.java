@@ -31,6 +31,8 @@ public interface Request {
 
     Object getPathParam(String name);
 
+    MultiPartFile getMultiPartFile(String name);
+
     boolean isUseGZIP();
 
     Session getSession();
@@ -83,22 +85,6 @@ public interface Request {
     }
 
     boolean isKeepAlive();
-
-    Map<String, Object> getAttributes();
-
-    default Request getAttribute(@NonNull String name, Object value) {
-        this.getAttributes().put(name, value);
-        return this;
-    }
-
-    default <T> T getAttribute(String name) {
-        if (null == name) {
-            return null;
-        }
-        Object object = getAttributes().get(name);
-        return null != object ? (T) object : null;
-    }
-
 
     boolean isMultipart();
 

@@ -8,13 +8,16 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
+import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
 import org.ael.constant.HttpConstant;
 import org.ael.http.session.SessionHandler;
 import org.ael.constant.EnvironmentConstant;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Author: aorxsr
@@ -24,6 +27,9 @@ public class HttpRequest implements Request {
 
     private final static SessionHandler SESSION_HANDLER = new SessionHandler(WebContent.ael.getSessionManager());
 
+    // Disk if size exceed
+    private static final HttpDataFactory HTTP_DATA_FACTORY = new DefaultHttpDataFactory(DefaultHttpDataFactory.MINSIZE);
+
     private final static String GZIP = "gzip";
     private final static String WEN = "?";
 
@@ -31,6 +37,7 @@ public class HttpRequest implements Request {
     private String url;
     private String host;
     private String method;
+    private boolean multipart;
     private ByteBuf body = null;
 
     private boolean asession = true;
@@ -40,11 +47,13 @@ public class HttpRequest implements Request {
     private Session session;
 
     private Map<String, String> headers = new HashMap<>(8);
-    private Map<String, Object> parameters = new HashMap<>(8);
+    private Map<String, List<String>> parameters = new HashMap<>(8);
     private Map<String, Cookie> cookies = new HashMap<>(8);
 
     private io.netty.handler.codec.http.HttpRequest nettyRequest;
     private Queue<HttpContent> contents = new LinkedList<>();
+
+    private Map<String, MultiPartFile> multiPartFileMap = new ConcurrentHashMap<>(8);
 
     public void setNettyRequest(io.netty.handler.codec.http.HttpRequest httpRequest) {
         this.nettyRequest = httpRequest;
@@ -95,12 +104,77 @@ public class HttpRequest implements Request {
         }
 
         // Not Get Method
-        if (this.contents.size() != 0) {
-            ArrayList<ByteBuf> byteBufs = new ArrayList<>(contents.size());
-            this.contents.forEach(httpContent -> byteBufs.add(httpContent.content().copy()));
-            this.body = Unpooled.copiedBuffer(byteBufs.toArray(new ByteBuf[0]));
+        if (!contents.isEmpty()) {
+            HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(HTTP_DATA_FACTORY, nettyRequest);
+            if (decoder.isMultipart()) {
+                this.multipart = true;
+                for (HttpContent content : contents) {
+                    decoder.offer(content);
+                    //
+                    readHttpDataChunkByChunk(decoder);
+                    // -1 释放
+                    content.release();
+                }
+            } else {
+                notMultipart();
+            }
         }
     }
+
+    /**
+     * 从decoder中读出数据，写入临时对象，然后写入...哪里？
+     * 这个封装主要是为了释放临时对象
+     * https://blog.csdn.net/arctan90/article/details/51292120
+     */
+    private void readHttpDataChunkByChunk(HttpPostRequestDecoder decoder) {
+        try {
+            while (decoder.hasNext()) {
+                InterfaceHttpData data = decoder.next();
+                if (data != null) {
+                    try {
+                        // new value
+                        // Attribute就是form表单里带的各种 name= 的属性
+                        if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.Attribute) {
+                            Attribute attribute = (Attribute) data;
+                            String name = attribute.getName();
+                            String value = attribute.getValue();
+                            List<String> values = new ArrayList<>();
+                            if (parameters.containsKey(name)) {
+                                values = parameters.get(name);
+                                values.add(value);
+                            }
+                            values.add(value);
+                            this.parameters.put(name, values);
+                        } else if (data.getHttpDataType() == InterfaceHttpData.HttpDataType.FileUpload) {
+                            FileUpload fileUpload = (FileUpload) data;
+                            // Determine whether all uploads are completed
+                            if (fileUpload.isCompleted()) {
+                                // fileUpload.isInMemory();// tells if the file is in Memory
+                                // or on File
+                                // fileUpload.renameTo(dest); // enable to move into another
+                                // File dest
+                                // decoder.removeFileUploadFromClean(fileUpload); //remove
+                                // the File of to delete file
+                                multiPartFileMap.put(fileUpload.getName(), MultiPartFile.builder().file(fileUpload).build());
+                            }
+                        }
+                    } finally {
+                        data.release();
+                    }
+                }
+            }
+        } catch (HttpPostRequestDecoder.EndOfDataDecoderException | IOException e1) {
+            // end
+        }
+    }
+
+    private void notMultipart() {
+        ArrayList<ByteBuf> byteBufs = new ArrayList<>(contents.size());
+        this.contents.forEach(httpContent -> byteBufs.add(httpContent.content().copy()));
+        if (!byteBufs.isEmpty())
+            this.body = Unpooled.copiedBuffer(byteBufs.toArray(new ByteBuf[0]));
+    }
+
 
     @Override
     public String getMethod() {
@@ -162,6 +236,11 @@ public class HttpRequest implements Request {
     }
 
     @Override
+    public MultiPartFile getMultiPartFile(String name) {
+        return multiPartFileMap.containsKey(name) ? multiPartFileMap.get(name) : null;
+    }
+
+    @Override
     public boolean isUseGZIP() {
         if (WebContent.ael.getEnvironment().getBoolean(EnvironmentConstant.HTTP_ZIP, false)) {
             return false;
@@ -211,13 +290,8 @@ public class HttpRequest implements Request {
     }
 
     @Override
-    public Map<String, Object> getAttributes() {
-        return null;
-    }
-
-    @Override
     public boolean isMultipart() {
-        return false;
+        return this.multipart;
     }
 
     @Override

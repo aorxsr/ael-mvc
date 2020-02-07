@@ -27,4 +27,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MultiPartFileParam {
 
+    String name() default "";
+    boolean required() default false;
 }

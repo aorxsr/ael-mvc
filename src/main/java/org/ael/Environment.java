@@ -161,4 +161,7 @@ public class Environment implements Map<String, Object> {
         }
     }
 
+    public Integer getInt(String s, int i) {
+        return this.map.containsKey(s) ? Integer.parseInt(this.map.get(s).toString()) : i;
+    }
 }

@@ -53,12 +53,13 @@ public class NettyServer implements Server {
     }
 
     private void startServer() {
+        int port = ael.getEnvironment().getInt("server.port", 7788);
         new Thread(() -> {
             try {
                 future = serverBootstrap.channel(NioServerSocketChannel.class)
                         .option(ChannelOption.SO_KEEPALIVE, true)
                         .childHandler(new InitialHandler())
-                        .bind(7788)
+                        .bind(port)
                         .sync()
                         .channel()
                         .closeFuture()
@@ -67,7 +68,7 @@ public class NettyServer implements Server {
                 e.printStackTrace();
             }
         }).start();
-        log.info("open in browser http://127.0.0.1:7788");
+        log.info("open in browser http://127.0.0.1:" + port);
     }
 
     private void init() {

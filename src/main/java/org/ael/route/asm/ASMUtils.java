@@ -152,7 +152,7 @@ public class ASMUtils {
             this.index = index;
             this.name = name;
         }
-
+        @Override
         public int compareTo(LocalVariable o) {
             return this.index - o.index;
         }

@@ -160,11 +160,25 @@ public class RouteHandler {
                             Object[] objects = new Object[parameters.length];
 
                             for (int i = 0; i < methodParamNames.length; i++) {
-                                String paramName = methodParamNames[i];
                                 Parameter parameter = parameters[i];
-
+                                String paramName = methodParamNames[i];
+                                Type type = parameter.getParameterizedType();
                                 if (isAnnParam(parameter)) {
-                                    objects[i] = getAnnParam(request, parameter);
+                                    objects[i] = getAnnParam(request, parameter, paramName);
+                                }
+                                if (isBasicType(type)) {
+                                    List<String> value = (List<String>) request.getParameter(paramName);
+                                    if (null == value) {
+                                        value = (List<String>) request.getPathParam(paramName);
+                                    }
+                                    if (value.isEmpty()) {
+                                        objects[i] = null;
+                                    } else {
+                                        objects[i] = value.get(0);
+                                    }
+                                }
+                                if (isObjectType(type)) {
+                                    objects[i] = getObjectType(type, webContent);
                                 }
                             }
                             Object invoke = method.invoke(ael.getIocPlugin().getBean(route.getClassType()), objects);
@@ -251,22 +265,56 @@ public class RouteHandler {
                 || parameter.isAnnotationPresent(MultiPartFileParam.class);
     }
 
-    private Object getAnnParam(Request request, Parameter parameter) {
+    private Object annTro(boolean flag, String parameterName) {
+        if (flag) {
+            throw new RuntimeException("没有找到参数:" + parameterName);
+        }
+        return null;
+    }
+
+    private Object getAnnParam(Request request, Parameter parameter, String paramName) {
+        Object value = null;
         if (parameter.isAnnotationPresent(RequestBody.class)) {
             String body = request.body().toString(CharsetUtil.UTF_8);
-            return StringUtils.isEmpty(body) ? null : JSONObject.parseObject(body, parameter.getType());
+            RequestBody requestBody = parameter.getDeclaredAnnotation(RequestBody.class);
+            if (StringUtils.isEmpty(body)) {
+                annTro(requestBody.required(), paramName);
+            } else {
+                value = JSONObject.parseObject(body, parameter.getType());
+            }
         } else if (parameter.isAnnotationPresent(PathParam.class)) {
-            // 找URL中的值
-            return null;
+            PathParam pathParam = parameter.getDeclaredAnnotation(PathParam.class);
+            String name = pathParam.name();
+            if (StringUtils.isEmpty(name)) {
+                name = paramName;
+            }
+            value = request.getPathParam(name);
+            if (value == null) {
+                annTro(pathParam.required(), name);
+            }
         } else if (parameter.isAnnotationPresent(RequestParam.class)) {
-            // 找参数中的值
-            return null;
+            RequestParam requestParam = parameter.getDeclaredAnnotation(RequestParam.class);
+            String name = requestParam.value();
+            if (StringUtils.isEmpty(name)) {
+                name = paramName;
+            }
+            value = request.getParameter(name);
+            if (value == null) {
+                annTro(requestParam.required(), name);
+            }
         } else if (parameter.isAnnotationPresent(MultiPartFileParam.class)) {
-            // 上传的文件
-            return null;
-        } else {
-            return null;
+            MultiPartFileParam multiPartFileParam = parameter.getDeclaredAnnotation(MultiPartFileParam.class);
+            String name = multiPartFileParam.name();
+            if (StringUtils.isEmpty(name)) {
+                name = paramName;
+            }
+            value = request.getMultiPartFile(name);
+            if (value == null) {
+                annTro(multiPartFileParam.required(), name);
+            }
         }
+
+        return value;
     }
 
     private boolean isStatics(String uri) {
