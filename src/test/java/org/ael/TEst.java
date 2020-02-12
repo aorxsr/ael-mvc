@@ -1,6 +1,8 @@
 package org.ael;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.Builder;
+import lombok.Data;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -13,11 +15,16 @@ public class TEst {
 
         Ael ael = new Ael();
 
-        ael.get("/a", webContent -> {
-            webContent.getResponse().text("F大大");
-        })
+        ael.get("/", webContent -> webContent.getResponse().json(JSONObject.toJSONString(Money.builder().zjq(100).zqq(50).build())))
                 .start(TEst.class);
 
+    }
+
+    @Builder
+    @Data
+    static class Money {
+        private int zjq;
+        private int zqq;
     }
 
     @Test

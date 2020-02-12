@@ -83,7 +83,9 @@ public class RouteHandler {
                 }
             }
         }
-        sub.deleteCharAt(sub.length() - 1);
+        if (split.length != 0) {
+            sub.deleteCharAt(sub.length() - 1);
+        }
         sub.append(")$");
         return sub.toString();
     }
