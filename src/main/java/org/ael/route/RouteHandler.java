@@ -148,9 +148,6 @@ public class RouteHandler {
         Request request = webContent.getRequest();
         Response response = webContent.getResponse();
         String uri = request.getUri();
-        if (SHOW_URL) {
-            log.info("request uri : " + uri);
-        }
         try {
             // 判断是否是 静态资源文件...
             if (isStatics(uri)) {
@@ -232,7 +229,9 @@ public class RouteHandler {
             e.printStackTrace(pw);
             response.json(sw.toString());
         }
-
+        if (SHOW_URL) {
+            log.info(webContent.getResponse().getStatus() + "\t" + uri);
+        }
         return webContent;
     }
 

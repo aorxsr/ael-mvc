@@ -40,6 +40,7 @@ public class NettyServer implements Server {
 
     private Ael ael;
 
+    @Deprecated
     public static final ExecutorService executorService = Executors.newFixedThreadPool(8);
 
     @Override
@@ -72,8 +73,6 @@ public class NettyServer implements Server {
     }
 
     private void init() {
-        // environment 初始化
-        ael.getEnvironment().initConfig();
 
         boss = new NioEventLoopGroup();
         work = new NioEventLoopGroup();

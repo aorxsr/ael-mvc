@@ -131,7 +131,7 @@ public class Environment implements Map<String, Object> {
         return map.containsKey(key) ? (List) map.get(key) : defaultValue;
     }
 
-    public void initConfig() {
+    public Environment() {
         // 加载配置文件
         InputStream classPathFile = StreamUtils.getClassPathFile("app.properties");
         if (null == classPathFile) {

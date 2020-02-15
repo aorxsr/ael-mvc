@@ -34,12 +34,18 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpRequest request) throws Exception {
-        NettyServer.executorService.execute(() -> CompletableFuture.completedFuture(request)
+        /*NettyServer.executorService.execute(() -> CompletableFuture.completedFuture(request)
                 .thenApplyAsync(httpRequest -> initRequest(httpRequest, ctx))
                 .thenApplyAsync(this::execute)
                 .thenApplyAsync(this::buildResponse)
                 .exceptionally(this::exceptionally)
-                .thenAcceptAsync(fullHttpResponse -> writeResponse(ctx, fullHttpResponse), ctx.channel().eventLoop()));
+                .thenAcceptAsync(fullHttpResponse -> writeResponse(ctx, fullHttpResponse), ctx.channel().eventLoop()));*/
+        CompletableFuture.completedFuture(request)
+                .thenApplyAsync(httpRequest -> initRequest(httpRequest, ctx))
+                .thenApplyAsync(this::execute)
+                .thenApplyAsync(this::buildResponse)
+                .exceptionally(this::exceptionally)
+                .thenAcceptAsync(fullHttpResponse -> writeResponse(ctx, fullHttpResponse), ctx.channel().eventLoop());
     }
 
     public FullHttpResponse exceptionally(Throwable cause) {
