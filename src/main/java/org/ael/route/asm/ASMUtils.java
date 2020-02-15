@@ -107,7 +107,8 @@ public class ASMUtils {
     private static String[] getParamNames(InputStream in, EnclosingMetadata m) throws IOException {
         ClassReader cr = new ClassReader(in);
         ClassNode cn = new ClassNode();
-        cr.accept(cn, ClassReader.EXPAND_FRAMES);// 建议EXPAND_FRAMES
+        // 建议EXPAND_FRAMES
+        cr.accept(cn, ClassReader.EXPAND_FRAMES);
         // ASM树接口形式访问
         List<MethodNode> methods = cn.methods;
         List<String> list = new ArrayList<String>();
@@ -116,13 +117,14 @@ public class ASMUtils {
             MethodNode method = methods.get(i);
             // 验证方法签名
             if (method.desc.equals(m.desc) && method.name.equals(m.name)) {
-//                System.out.println("desc->"+method.desc+":"+m.desc);
+                // System.out.println("desc->"+method.desc+":"+m.desc);
                 List<LocalVariableNode> local_variables = method.localVariables;
                 for (int l = 0; l < local_variables.size(); l++) {
                     String varName = local_variables.get(l).name;
                     // index-记录了正确的方法本地变量索引。(方法本地变量顺序可能会被打乱。而index记录了原始的顺序)
                     int index = local_variables.get(l).index;
-                    if (!"this".equals(varName)) // 非静态方法,第一个参数是this
+                    // 非静态方法,第一个参数是this
+                    if (!"this".equals(varName))
                         varNames.add(new LocalVariable(index, varName));
                 }
                 LocalVariable[] tmpArr = varNames.toArray(new LocalVariable[varNames.size()]);
@@ -141,8 +143,6 @@ public class ASMUtils {
 
     /**
      * 方法本地变量索引和参数名封装
-     *
-     * @author xby Administrator
      */
     static class LocalVariable implements Comparable<LocalVariable> {
         public int index;
@@ -155,26 +155,6 @@ public class ASMUtils {
         @Override
         public int compareTo(LocalVariable o) {
             return this.index - o.index;
-        }
-    }
-
-    /**
-     * 封装方法描述和参数个数
-     *
-     * @author xby Administrator
-     */
-    static class EnclosingMetadata {
-        //method name
-        public String name;
-        // method description
-        public String desc;
-        // params size
-        public int size;
-
-        public EnclosingMetadata(String name, String desc, int size) {
-            this.name = name;
-            this.desc = desc;
-            this.size = size;
         }
     }
 

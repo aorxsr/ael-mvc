@@ -7,13 +7,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.ael.c.annotation.*;
 import org.ael.c.c.CHandler;
 import org.ael.commons.StringUtils;
+import org.ael.constant.EnvironmentConstant;
 import org.ael.constant.RouteTypeConstant;
 import org.ael.Ael;
-import org.ael.http.Request;
-import org.ael.http.Response;
+import org.ael.http.inter.Request;
+import org.ael.http.inter.Response;
 import org.ael.http.WebContent;
 import org.ael.http.body.EmptyBody;
 import org.ael.route.asm.ASMUtils;
+import org.ael.route.function.RouteFunctionHandler;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -32,9 +34,11 @@ public class RouteHandler {
 
     public RouteHandler(Ael ael) {
         this.ael = ael;
+        SHOW_URL = ael.getEnvironment().getBoolean(EnvironmentConstant.REQUEST_URL_SHOW, false);
         WebContent.ael = this.ael;
     }
 
+    private static boolean SHOW_URL = false;
     private Ael ael;
     private ConcurrentHashMap<String, RouteFunctionHandler> handlers = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Route> routeHandlers = new ConcurrentHashMap<>();
@@ -144,6 +148,9 @@ public class RouteHandler {
         Request request = webContent.getRequest();
         Response response = webContent.getResponse();
         String uri = request.getUri();
+        if (SHOW_URL) {
+            log.info("request uri : " + uri);
+        }
         try {
             // 判断是否是 静态资源文件...
             if (isStatics(uri)) {

@@ -1,5 +1,7 @@
 package org.ael.http;
 
+import org.ael.http.inter.Session;
+
 import java.util.HashMap;
 import java.util.Map;
 

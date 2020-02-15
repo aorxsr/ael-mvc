@@ -1,4 +1,4 @@
-package org.ael.http;
+package org.ael.http.inter;
 
 import io.netty.handler.codec.http.cookie.Cookie;
 import org.ael.constant.ContentType;

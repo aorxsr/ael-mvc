@@ -2,7 +2,7 @@ package org.ael.http.session;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.ael.http.Session;
+import org.ael.http.inter.Session;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;

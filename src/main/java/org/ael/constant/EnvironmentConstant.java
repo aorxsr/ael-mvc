@@ -58,4 +58,9 @@ public interface EnvironmentConstant {
 	 */
 	String DEFAULT_TEMPLATE_SUFFIX = ".html";
 
+	/**
+	 * 是否打印请求的URL
+	 */
+	String REQUEST_URL_SHOW = "org.ael.request.url-show";
+
 }

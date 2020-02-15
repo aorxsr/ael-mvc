@@ -3,7 +3,7 @@ package org.ael.http.session;
 import io.netty.util.internal.StringUtil;
 import lombok.Getter;
 import org.ael.http.HttpSession;
-import org.ael.http.Session;
+import org.ael.http.inter.Session;
 
 import java.time.Instant;
 

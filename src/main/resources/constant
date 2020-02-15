@@ -8,3 +8,5 @@ org.ael.sessionKey : sessionId
 org.ael.template.prefix
 5. 默认页面后缀
 org.ael.template.suffix
+6. 是否打印访问URL
+org.ael.request.url-show

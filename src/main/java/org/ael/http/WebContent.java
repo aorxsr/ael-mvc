@@ -4,6 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import lombok.Getter;
 import lombok.Setter;
 import org.ael.Ael;
+import org.ael.http.inter.Request;
+import org.ael.http.inter.Response;
 
 /**
  * @Author: aorxsr

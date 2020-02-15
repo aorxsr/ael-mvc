@@ -12,6 +12,8 @@ import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
 import org.ael.constant.HttpConstant;
+import org.ael.http.inter.Request;
+import org.ael.http.inter.Session;
 import org.ael.http.session.SessionHandler;
 import org.ael.constant.EnvironmentConstant;
 

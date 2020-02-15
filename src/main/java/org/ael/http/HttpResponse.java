@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.cookie.DefaultCookie;
 import org.ael.constant.HttpConstant;
 import org.ael.http.body.Body;
 import org.ael.http.body.EmptyBody;
+import org.ael.http.inter.Response;
 
 import java.util.HashSet;
 import java.util.Map;
