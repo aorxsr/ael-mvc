@@ -56,6 +56,20 @@ public class TEst {
         System.out.println(JSONObject.toJSONString(""));
 
 
+        String name = "a.a.a.aaa()";
+
+        System.out.println(name.substring(0, name.lastIndexOf('.')));
+
+        System.out.println(name.substring(name.lastIndexOf('.') + 1));
+
+    }
+
+    @Test
+    public void T() {
+        String a = "org.ael.HelloController$$EnhancerByCGLIB$$b785f121";
+
+        System.out.println(a.substring(0, a.indexOf('$')));
+
     }
 
 }

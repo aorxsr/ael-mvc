@@ -42,6 +42,8 @@ public interface Request {
 
     void setASESSION(boolean asession);
 
+    void initRequest(String remoteAddress);
+
     default String contentType() {
         String contentType = header(HttpConstant.CONTENT_TYPE);
         return null != contentType ? contentType : "Unknown";

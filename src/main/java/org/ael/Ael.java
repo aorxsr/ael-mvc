@@ -20,7 +20,8 @@ import org.ael.http.session.SessionHandler;
 import org.ael.http.session.SessionManager;
 import org.ael.constant.EnvironmentConstant;
 import org.ael.constant.HttpMethodConstant;
-import org.ael.plugin.ioc.IOCPlugin;
+import org.ael.plugin.aop.AopPlugin;
+import org.ael.plugin.ioc.IocPlugin;
 import org.ael.route.function.RouteFunctionHandler;
 import org.ael.route.RouteHandler;
 import org.ael.server.Server;
@@ -58,7 +59,9 @@ public class Ael {
 
     private List<InitialHandler> initHandlers = new ArrayList<>();
 
-    private IOCPlugin iocPlugin = new IOCPlugin();
+    private IocPlugin iocPlugin = new IocPlugin();
+
+    private AopPlugin aopPlugin = new AopPlugin();
 
     public Ael start(Class<?> startClass) {
         this.startClass = startClass;

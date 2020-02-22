@@ -15,6 +15,8 @@ import org.ael.http.HttpRequest;
 import org.ael.http.HttpResponse;
 import org.ael.http.WebContent;
 import org.ael.http.body.SimpleBodyWrite;
+import org.ael.http.inter.Request;
+import org.ael.plugin.aop.AopPlugin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,56 +36,25 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, HttpRequest request) throws Exception {
-        /*NettyServer.executorService.execute(() -> CompletableFuture.completedFuture(request)
-                .thenApplyAsync(httpRequest -> initRequest(httpRequest, ctx))
-                .thenApplyAsync(this::execute)
-                .thenApplyAsync(this::buildResponse)
-                .exceptionally(this::exceptionally)
-                .thenAcceptAsync(fullHttpResponse -> writeResponse(ctx, fullHttpResponse), ctx.channel().eventLoop()));*/
-        CompletableFuture.completedFuture(request)
-                .thenApplyAsync(httpRequest -> initRequest(httpRequest, ctx))
-                .thenApplyAsync(this::execute)
-                .thenApplyAsync(this::buildResponse)
-                .exceptionally(this::exceptionally)
-                .thenAcceptAsync(fullHttpResponse -> writeResponse(ctx, fullHttpResponse), ctx.channel().eventLoop());
-    }
-
-    public FullHttpResponse exceptionally(Throwable cause) {
-        StringWriter writer = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(writer);
-        cause.printStackTrace(printWriter);
-        return new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(writer.toString().getBytes()));
-    }
-
-    private void writeResponse(ChannelHandlerContext ctx, FullHttpResponse res) {
-        ctx.writeAndFlush(res).addListener(ChannelFutureListener.CLOSE);
-    }
-
-    private WebContent initRequest(HttpRequest request, ChannelHandlerContext ctx) {
-        request.initRequest(ctx.channel().remoteAddress().toString());
-        return new WebContent(request, new HttpResponse(), ctx);
-    }
-
-    private WebContent execute(WebContent webContent) {
-        return WebContent.ael.getRouteHandler().executeHandler(webContent);
-    }
-
-    private FullHttpResponse buildResponse(WebContent webContent) {
-
+        FullHttpResponse response;
         try {
-            return webContent.getResponse().getBody().body(new SimpleBodyWrite(webContent));
-        } catch (IOException e) {
-            webContent.getResponse().setContentType("text");
-            webContent.getResponse().text(e.getMessage());
-
-            ByteBuf buffer = Unpooled.buffer();
-            buffer.readBytes(e.getMessage().getBytes());
-
-            DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(400), buffer);
-            defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
-            defaultFullHttpResponse.headers().add("Content-Type", "text");
-            return defaultFullHttpResponse;
+            WebContent execute = execute(request, ctx);
+            response = execute.getResponse().getBody().body(new SimpleBodyWrite(execute));
+        } catch (Exception e) {
+            StringWriter writer = new StringWriter();
+            PrintWriter printWriter = new PrintWriter(writer);
+            e.getCause().printStackTrace(printWriter);
+            response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(writer.toString().getBytes()));
         }
+
+        AopPlugin.WEB_CONTENT_THREAD_LOCAL.remove();
+
+        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    }
+
+    private WebContent execute(Request request, ChannelHandlerContext ctx) {
+        request.initRequest(ctx.channel().remoteAddress().toString());
+        return WebContent.ael.getRouteHandler().executeHandler(new WebContent(request, new HttpResponse(), ctx));
     }
 
 }

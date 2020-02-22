@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import static org.ael.plugin.aop.AopPlugin.WEB_CONTENT_THREAD_LOCAL;
+
 /**
  * @Author: aorxsr
  * @Date: 2019/7/29 11:57
@@ -145,6 +147,8 @@ public class RouteHandler {
     }
 
     public WebContent executeHandler(WebContent webContent) {
+        WEB_CONTENT_THREAD_LOCAL.set(webContent);
+
         Request request = webContent.getRequest();
         Response response = webContent.getResponse();
         String uri = request.getUri();
@@ -159,7 +163,6 @@ public class RouteHandler {
                     if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
                         route.getRouteFunctionHandler().handler(webContent);
                     } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
-                        try {
                             Method method = route.getMethod();
                             String[] methodParamNames = ASMUtils.getMethodParamNames(route.getClassType(), method);
                             Parameter[] parameters = method.getParameters();
@@ -209,11 +212,6 @@ public class RouteHandler {
                                     response.json(JSONObject.toJSONString(invoke));
                                 }
                             }
-                        } catch (IllegalAccessException e) {
-                            log.info(e.getMessage());
-                        } catch (InvocationTargetException e) {
-                            log.info(e.getMessage());
-                        }
                     } else {
                         response.text(" No route type " + route.getRouteType());
                     }

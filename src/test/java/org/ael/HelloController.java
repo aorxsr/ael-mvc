@@ -2,11 +2,23 @@ package org.ael;
 
 import org.ael.c.annotation.*;
 import org.ael.http.MultiPartFile;
+import org.ael.http.WebContent;
 import org.ael.ioc.core.annotation.Injection;
+import org.ael.plugin.aop.annotation.BeforeEnhance;
 
+@BeforeEnhance(enhanceMethodName = "org.ael.HelloController.before")
 @Controller
 @RequestMapping(value = "")
 public class HelloController {
+
+    @Injection
+    private WebContent webContent;
+
+    public void before() {
+        System.out.println("前置增强...");
+        testBean.testConsole();
+        webContent.getResponse().text("失败!");
+    }
 
     @Injection
     private TestBean testBean;

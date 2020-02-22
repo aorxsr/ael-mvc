@@ -95,6 +95,9 @@ public class NettyServer implements Server {
 
         // ioc init
         ael.getIocPlugin().initIoc(ael);
+
+        // aop init
+        ael.getAopPlugin().init(ael);
     }
 
     @Override

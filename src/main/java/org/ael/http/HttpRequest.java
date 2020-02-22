@@ -70,6 +70,7 @@ public class HttpRequest implements Request {
      *
      * @param remoteAddress
      */
+    @Override
     public void initRequest(String remoteAddress) {
         // url
         url = nettyRequest.uri();

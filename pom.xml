@@ -21,6 +21,8 @@
         <fastjson.version>1.2.62</fastjson.version>
 
         <ael-ioc.version>0.1.0</ael-ioc.version>
+        <!-- cglib -->
+        <cglib.version>3.1</cglib.version>
     </properties>
 
     <dependencies>
@@ -65,7 +67,11 @@
             <artifactId>fastjson</artifactId>
             <version>${fastjson.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>${cglib.version}</version>
+        </dependency>
     </dependencies>
 
     <repositories>
