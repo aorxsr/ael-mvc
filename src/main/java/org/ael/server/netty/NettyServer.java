@@ -87,10 +87,11 @@ public class NettyServer implements Server {
         // 扫描包下面所有的类
         List<String> list = this.ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList<String>());
 
-        Set<Class<?>> scanClasss = new HashSet<>(16);
-        list.forEach(bap -> ClsUtil.getClasses(bap).forEach(cls -> scanClasss.add(cls)));
-        this.ael.setScanClass(scanClasss);
+        Set<Class<?>> scanClazz = new HashSet<>(16);
+        list.forEach(bap -> ClsUtil.getClasses(bap).forEach(cls -> scanClazz.add(cls)));
+        this.ael.setScanClass(scanClazz);
 
+        // routeHandler init
         ael.getRouteHandler().init();
 
         // ioc init
@@ -98,6 +99,9 @@ public class NettyServer implements Server {
 
         // aop init
         ael.getAopPlugin().init(ael);
+
+        // hook init
+        ael.getHookHandler().initHook(ael.getScanClass());
     }
 
     @Override

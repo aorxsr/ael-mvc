@@ -24,6 +24,7 @@ import org.ael.plugin.aop.AopPlugin;
 import org.ael.plugin.ioc.IocPlugin;
 import org.ael.route.function.RouteFunctionHandler;
 import org.ael.route.RouteHandler;
+import org.ael.route.hook.HookHandler;
 import org.ael.server.Server;
 import org.ael.server.netty.InitialHandler;
 import org.ael.server.netty.NettyServer;
@@ -62,6 +63,8 @@ public class Ael {
     private IocPlugin iocPlugin = new IocPlugin();
 
     private AopPlugin aopPlugin = new AopPlugin();
+
+    private HookHandler hookHandler = new HookHandler();
 
     public Ael start(Class<?> startClass) {
         this.startClass = startClass;

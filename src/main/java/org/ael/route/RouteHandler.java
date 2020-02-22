@@ -16,6 +16,7 @@ import org.ael.http.WebContent;
 import org.ael.http.body.EmptyBody;
 import org.ael.route.asm.ASMUtils;
 import org.ael.route.function.RouteFunctionHandler;
+import org.ael.route.hook.HookContext;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -75,7 +76,7 @@ public class RouteHandler {
         putRegexAndRoute(url, rrMap.get(httpMethod), httpMethod, route);
     }
 
-    private String urlToPattern(String url) {
+    public static synchronized String urlToPattern(String url) {
         StringBuffer sub = new StringBuffer("^(/");
         // 分割
         String[] split = url.split("/");
@@ -134,7 +135,7 @@ public class RouteHandler {
     }
 
     // ^(/api_test/([^/]+))$
-    private Integer getAutomInt(String method, String url) {
+    private Integer getAtomInt(String method, String url) {
         List<RegexRoute> regexRoutes = rrMap.get(method);
         Optional<RegexRoute> first = regexRoutes.stream()
                 .filter(regexRoute -> regexRoute.matching(url))
@@ -153,16 +154,20 @@ public class RouteHandler {
         Response response = webContent.getResponse();
         String uri = request.getUri();
         try {
-            // 判断是否是 静态资源文件...
-            if (isStatics(uri)) {
-                webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
+            // hook
+            HookContext hookContext = ael.getHookHandler().executeHooks(webContent);
+            if (hookContext.getHookReturnENUM() == HookContext.HookReturnENUM.FAILED) {
+                webContent = hookContext.getWebContent();
             } else {
-                Integer automInt = getAutomInt(request.getMethod(), uri);
-                if (null != automInt) {
-                    Route route = routeMap.get(automInt);
-                    if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
-                        route.getRouteFunctionHandler().handler(webContent);
-                    } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
+                if (isStatics(uri)) {
+                    webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
+                } else {
+                    Integer atomInt = getAtomInt(request.getMethod(), uri);
+                    if (null != atomInt) {
+                        Route route = routeMap.get(atomInt);
+                        if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
+                            route.getRouteFunctionHandler().handler(webContent);
+                        } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
                             Method method = route.getMethod();
                             String[] methodParamNames = ASMUtils.getMethodParamNames(route.getClassType(), method);
                             Parameter[] parameters = method.getParameters();
@@ -212,12 +217,13 @@ public class RouteHandler {
                                     response.json(JSONObject.toJSONString(invoke));
                                 }
                             }
+                        } else {
+                            response.text(" No route type " + route.getRouteType());
+                        }
                     } else {
-                        response.text(" No route type " + route.getRouteType());
+                        response.setStatus(500);
+                        response.text(" No Mapping " + uri);
                     }
-                } else {
-                    response.setStatus(500);
-                    response.text(" No Mapping " + uri);
                 }
             }
         } catch (Exception e) {
