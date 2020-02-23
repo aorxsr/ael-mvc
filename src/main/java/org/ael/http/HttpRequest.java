@@ -11,6 +11,7 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import io.netty.handler.codec.http.multipart.*;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
+import org.ael.commons.StringUtils;
 import org.ael.constant.HttpConstant;
 import org.ael.http.inter.Request;
 import org.ael.http.inter.Session;
@@ -176,6 +177,21 @@ public class HttpRequest implements Request {
         this.contents.forEach(httpContent -> byteBufs.add(httpContent.content().copy()));
         if (!byteBufs.isEmpty())
             this.body = Unpooled.copiedBuffer(byteBufs.toArray(new ByteBuf[0]));
+        // 设置进parameter
+        processParameter();
+    }
+
+    private void processParameter() {
+        String s = new String(body.array());
+        if (StringUtils.isNotEmpty(s)) {
+            String[] split = s.split("&");
+            for (String s1 : split) {
+                String[] para = s1.split("=");
+                if (0 != para.length) {
+                    this.parameters.put(para[0], new ArrayList<String>() {{ add(para[1]); }});
+                }
+            }
+        }
     }
 
 
