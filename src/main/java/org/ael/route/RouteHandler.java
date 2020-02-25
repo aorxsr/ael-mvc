@@ -15,6 +15,7 @@ import org.ael.http.inter.Response;
 import org.ael.http.WebContent;
 import org.ael.http.body.EmptyBody;
 import org.ael.route.asm.ASMUtils;
+import org.ael.route.function.FunctionRouteHandler;
 import org.ael.route.function.RouteFunctionHandler;
 import org.ael.route.hook.HookContext;
 
@@ -65,14 +66,7 @@ public class RouteHandler {
     private AtomicInteger atomicInteger = new AtomicInteger();
 
 
-    public void addHandler(String httpMethod, String url, RouteFunctionHandler routeFunctionHandler) {
-        Route route = Route.builder()
-                .httpMethod(httpMethod)
-                .classType(routeFunctionHandler.getClass())
-                .path(url)
-                .routeFunctionHandler(routeFunctionHandler)
-                .routeType(RouteTypeConstant.ROUTE_TYPE_FUNCTION)
-                .build();
+    public void addFunctionRoute(String httpMethod, String url, Route route) {
         putRegexAndRoute(url, rrMap.get(httpMethod), httpMethod, route);
     }
 

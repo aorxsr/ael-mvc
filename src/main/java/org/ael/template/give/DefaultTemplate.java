@@ -33,10 +33,10 @@ public class DefaultTemplate implements AelTemplate {
             try {
                 webContent.getRequest().setASESSION(false);
                 InputStream inputStream = StreamUtils.convertToByteArrayInputStream(resourceAsStream);
+                webContent.getResponse().addHeader("Content-Length", inputStream.available());
                 ByteBuf buffer = Unpooled.buffer();
                 buffer.writeBytes(inputStream, inputStream.available());
                 webContent.getResponse().write(new ByteBufBody(buffer));
-                webContent.getResponse().addHeader("Content-Length", inputStream.available());
                 String suffix = view.substring(view.lastIndexOf(".") + 1);
                 webContent.getResponse().setContentType(ContentType.get(suffix));
             } catch (IOException e) {

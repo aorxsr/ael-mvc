@@ -22,6 +22,7 @@ import org.ael.constant.EnvironmentConstant;
 import org.ael.constant.HttpMethodConstant;
 import org.ael.plugin.aop.AopPlugin;
 import org.ael.plugin.ioc.IocPlugin;
+import org.ael.route.function.FunctionRouteHandler;
 import org.ael.route.function.RouteFunctionHandler;
 import org.ael.route.RouteHandler;
 import org.ael.route.hook.HookHandler;
@@ -39,8 +40,6 @@ import java.util.*;
  */
 @Data
 public class Ael {
-
-    private Class<?> startClass;
 
     private AelTemplate aelTemplate = new DefaultTemplate();
 
@@ -66,8 +65,9 @@ public class Ael {
 
     private HookHandler hookHandler = new HookHandler();
 
-    public Ael start(Class<?> startClass) {
-        this.startClass = startClass;
+    private FunctionRouteHandler functionRouteHandler = new FunctionRouteHandler();
+
+    public Ael start() {
         server.start(this);
         return this;
     }
@@ -79,16 +79,6 @@ public class Ael {
 
     public void stop() {
         server.stop();
-    }
-
-    public Ael get(String url, RouteFunctionHandler handler) {
-        routeHandler.addHandler(HttpMethodConstant.GET_UPPER, url, handler);
-        return this;
-    }
-
-    public Ael post(String url, RouteFunctionHandler handler) {
-        routeHandler.addHandler(HttpMethodConstant.POST_UPPER, url, handler);
-        return this;
     }
 
     public Ael setTemplateImpl(Class<?> templateClass) throws IllegalAccessException, InstantiationException {

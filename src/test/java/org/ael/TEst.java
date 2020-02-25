@@ -3,6 +3,7 @@ package org.ael;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Builder;
 import lombok.Data;
+import org.ael.route.function.FunctionRouteHandler;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -15,8 +16,11 @@ public class TEst {
 
         Ael ael = new Ael();
 
-        ael.get("/", webContent -> webContent.getResponse().json(JSONObject.toJSONString(Money.builder().zjq(100).zqq(50).build())))
-                .start(TEst.class);
+        FunctionRouteHandler functionRouteHandler = ael.getFunctionRouteHandler();
+
+        functionRouteHandler.getRoute("/", webContent -> webContent.getResponse().json(JSONObject.toJSONString(Money.builder().zjq(100).zqq(50).build())));
+
+        ael.start();
 
     }
 

@@ -94,6 +94,9 @@ public class NettyServer implements Server {
         // routeHandler init
         ael.getRouteHandler().init();
 
+        // function route register
+        ael.getFunctionRouteHandler().registerFunctionRoute(ael.getRouteHandler());
+
         // ioc init
         ael.getIocPlugin().initIoc(ael);
 
