@@ -72,7 +72,6 @@ public class RouteHandler {
 
     public static synchronized String urlToPattern(String url) {
         StringBuffer sub = new StringBuffer("^(/");
-        // 分割
         String[] split = url.split("/");
         for (String s : split) {
             if (StringUtils.isNotEmpty(s)) {
@@ -128,7 +127,7 @@ public class RouteHandler {
         log.info(httpMethod + "#" + path);
     }
 
-    // ^(/api_test/([^/]+))$
+    // ^(/api/([^/]+))$
     private Integer getAtomInt(String method, String url) {
         List<RegexRoute> regexRoutes = rrMap.get(method);
         Optional<RegexRoute> first = regexRoutes.stream()

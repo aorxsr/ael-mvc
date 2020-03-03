@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 
 import static org.ael.plugin.aop.AopPlugin.*;
 
-public class CglibWebIntercepter implements MethodInterceptor {
+public class CglibWebInterceptor implements MethodInterceptor {
 
     @Override
     public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {

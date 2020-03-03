@@ -4,6 +4,7 @@ import org.ael.c.annotation.*;
 import org.ael.http.MultiPartFile;
 import org.ael.http.WebContent;
 import org.ael.ioc.core.annotation.Injection;
+import org.ael.orm.annotation.Value;
 import org.ael.plugin.aop.annotation.BeforeEnhance;
 
 @BeforeEnhance(enhanceMethodName = "org.ael.HelloController.before")
@@ -11,10 +12,14 @@ import org.ael.plugin.aop.annotation.BeforeEnhance;
 @RequestMapping(value = "")
 public class HelloController {
 
+    @Value(name = "server.port")
+    private String port;
+
     @Injection
     private WebContent webContent;
 
     public void before() {
+        System.out.println("端口:" + port);
         System.out.println("前置增强...");
         testBean.testConsole();
         webContent.getResponse().text("失败!");

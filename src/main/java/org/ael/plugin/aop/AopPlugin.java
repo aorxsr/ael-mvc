@@ -23,7 +23,7 @@ import org.ael.plugin.aop.annotation.AfterEnhance;
 import org.ael.plugin.aop.annotation.BeforeEnhance;
 import org.ael.plugin.aop.annotation.ExceptionEnhance;
 import org.ael.plugin.aop.annotation.SurroundEnhance;
-import org.ael.plugin.aop.proxy.web.CglibWebIntercepter;
+import org.ael.plugin.aop.proxy.web.CglibWebInterceptor;
 import org.ael.plugin.aop.proxy.web.JdkWebInvocationHandler;
 import org.ael.plugin.ioc.IocPlugin;
 
@@ -54,7 +54,7 @@ public class AopPlugin {
         this.ael = ael;
         IocPlugin iocPlugin = ael.getIocPlugin();
         Map<String, BeanInfo> allBean = iocPlugin.getAllBean();
-        CglibWebIntercepter cglibWebIntercepter = new CglibWebIntercepter();
+        CglibWebInterceptor cglibWebInterceptor = new CglibWebInterceptor();
         JdkWebInvocationHandler jdkWebInvocationHandler = new JdkWebInvocationHandler();
         allBean.forEach((key, val) -> {
             BeanInfo beanInfo = val;
@@ -66,7 +66,7 @@ public class AopPlugin {
                     if (0 == interfaces.length) {
                         // 调用Cglib的代理
                         Enhancer enhancer = new Enhancer();
-                        enhancer.setCallback(cglibWebIntercepter);
+                        enhancer.setCallback(cglibWebInterceptor);
                         enhancer.setSuperclass(cls);
                         enhancer.setClassLoader(classLoader);
                         Object o = enhancer.create();

@@ -15,7 +15,9 @@
 package org.ael.plugin.ioc;
 
 import org.ael.Ael;
+import org.ael.Environment;
 import org.ael.c.annotation.Controller;
+import org.ael.commons.StringUtils;
 import org.ael.http.WebContent;
 import org.ael.http.inter.Request;
 import org.ael.http.inter.Response;
@@ -24,6 +26,7 @@ import org.ael.ioc.core.DefaultIOC;
 import org.ael.ioc.core.annotation.Bean;
 import org.ael.ioc.core.annotation.Injection;
 import org.ael.ioc.core.annotation.Service;
+import org.ael.orm.annotation.Value;
 import org.ael.plugin.aop.AopPlugin;
 
 import java.lang.reflect.Field;
@@ -35,14 +38,16 @@ import java.util.Map;
  */
 public class IocPlugin {
 
-    private DefaultIOC ioc = new DefaultIOC();
+    private final DefaultIOC ioc = new DefaultIOC();
+    private Environment environment;
 
     public void initIoc(Ael ael) {
         ioc.addBeanClss(Bean.class);
         ioc.addBeanClss(Service.class);
         ioc.addBeanClss(Controller.class);
-
         ioc.init(ael.getScanClass());
+
+        this.environment = ael.getEnvironment();
     }
 
     public Object getBean(Class<?> tClass) {
@@ -59,13 +64,12 @@ public class IocPlugin {
 
     public Object buildObject(Class<?> objClass, Object object) throws IllegalAccessException {
         Class<Injection> injectionClass = Injection.class;
+        Class<Value> valueClass = Value.class;
 
         Field[] fields = objClass.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(injectionClass)) {
-
                 WebContent webContent = AopPlugin.WEB_CONTENT_THREAD_LOCAL.get();
-
                 Class<?> fieldType = field.getType();
                 field.setAccessible(true);
                 // 判断是否是WebContent或者其他的东西
@@ -84,6 +88,15 @@ public class IocPlugin {
                 if (null != bean) {
                     field.set(object, bean);
                 }
+            }
+            if (field.isAnnotationPresent(valueClass)) {
+                String name = field.getName();
+                Value value = field.getAnnotation(valueClass);
+                if (StringUtils.isNotEmpty(value.name())) {
+                    name = value.name();
+                }
+                field.setAccessible(true);
+                field.set(object, environment.get(name));
             }
         }
 
