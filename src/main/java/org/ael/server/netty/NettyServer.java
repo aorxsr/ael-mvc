@@ -105,6 +105,9 @@ public class NettyServer implements Server {
 
         // hook init
         ael.getHookHandler().initHook(ael.getScanClass());
+
+        // dataSource init
+        ael.getSqlFactoryBuilder().init(ael);
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.ael.ioc.core.DefaultIOC;
 import org.ael.ioc.core.annotation.Bean;
 import org.ael.ioc.core.annotation.Injection;
 import org.ael.ioc.core.annotation.Service;
+import org.ael.orm.annotation.Dao;
 import org.ael.orm.annotation.Value;
 import org.ael.plugin.aop.AopPlugin;
 
@@ -45,6 +46,7 @@ public class IocPlugin {
         ioc.addBeanClss(Bean.class);
         ioc.addBeanClss(Service.class);
         ioc.addBeanClss(Controller.class);
+        ioc.addBeanClss(Dao.class);
         ioc.init(ael.getScanClass());
 
         this.environment = ael.getEnvironment();

@@ -20,6 +20,7 @@ import org.ael.http.session.SessionHandler;
 import org.ael.http.session.SessionManager;
 import org.ael.constant.EnvironmentConstant;
 import org.ael.constant.HttpMethodConstant;
+import org.ael.orm.SqlFactoryBuilder;
 import org.ael.plugin.aop.AopPlugin;
 import org.ael.plugin.ioc.IocPlugin;
 import org.ael.route.function.FunctionRouteHandler;
@@ -66,6 +67,8 @@ public class Ael {
     private HookHandler hookHandler = new HookHandler();
 
     private FunctionRouteHandler functionRouteHandler = new FunctionRouteHandler();
+
+    private SqlFactoryBuilder sqlFactoryBuilder = new SqlFactoryBuilder();
 
     public Ael start() {
         server.start(this);

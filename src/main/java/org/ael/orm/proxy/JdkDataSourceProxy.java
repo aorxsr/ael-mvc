@@ -8,7 +8,7 @@ public class JdkDataSourceProxy implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        return null;
+        return method.invoke(proxy, args);
     }
 
 }
