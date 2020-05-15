@@ -15,10 +15,13 @@ import org.ael.http.inter.Response;
 import org.ael.http.WebContent;
 import org.ael.http.body.EmptyBody;
 import org.ael.route.asm.ASMUtils;
+import org.ael.route.exception.NoMappingException;
+import org.ael.route.exception.NoRouteTypeException;
 import org.ael.route.function.FunctionRouteHandler;
 import org.ael.route.function.RouteFunctionHandler;
 import org.ael.route.hook.HookContext;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.*;
@@ -140,91 +143,84 @@ public class RouteHandler {
         }
     }
 
-    public WebContent executeHandler(WebContent webContent) {
+    public WebContent executeHandler(WebContent webContent) throws InvocationTargetException, IllegalAccessException, IOException, NoMappingException, NoRouteTypeException {
         WEB_CONTENT_THREAD_LOCAL.set(webContent);
 
         Request request = webContent.getRequest();
         Response response = webContent.getResponse();
         String uri = request.getUri();
-        try {
-            // hook
-            HookContext hookContext = ael.getHookHandler().executeHooks(webContent);
-            if (hookContext.getHookReturnENUM() == HookContext.HookReturnENUM.FAILED) {
-                webContent = hookContext.getWebContent();
+        // hook
+        HookContext hookContext = ael.getHookHandler().executeHooks(webContent);
+        if (hookContext.getHookReturnENUM() == HookContext.HookReturnENUM.FAILED) {
+            webContent = hookContext.getWebContent();
+        } else {
+            if (isStatics(uri)) {
+                webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
             } else {
-                if (isStatics(uri)) {
-                    webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
-                } else {
-                    Integer atomInt = getAtomInt(request.getMethod(), uri);
-                    if (null != atomInt) {
-                        Route route = routeMap.get(atomInt);
-                        if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
-                            route.getRouteFunctionHandler().handler(webContent);
-                        } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
-                            Method method = route.getMethod();
-                            String[] methodParamNames = ASMUtils.getMethodParamNames(route.getClassType(), method);
-                            Parameter[] parameters = method.getParameters();
-                            Object[] objects = new Object[parameters.length];
+                Integer atomInt = getAtomInt(request.getMethod(), uri);
+                if (null != atomInt) {
+                    Route route = routeMap.get(atomInt);
+                    if (RouteTypeConstant.ROUTE_TYPE_FUNCTION == route.getRouteType()) {
+                        route.getRouteFunctionHandler().handler(webContent);
+                    } else if (RouteTypeConstant.ROUTE_TYPE_CLASS == route.getRouteType()) {
+                        Method method = route.getMethod();
+                        String[] methodParamNames = ASMUtils.getMethodParamNames(route.getClassType(), method);
+                        Parameter[] parameters = method.getParameters();
+                        Object[] objects = new Object[parameters.length];
 
-                            for (int i = 0; i < methodParamNames.length; i++) {
-                                Parameter parameter = parameters[i];
-                                String paramName = methodParamNames[i];
-                                Type type = parameter.getParameterizedType();
-                                if (isAnnParam(parameter)) {
-                                    objects[i] = getAnnParam(request, parameter, paramName);
+                        for (int i = 0; i < methodParamNames.length; i++) {
+                            Parameter parameter = parameters[i];
+                            String paramName = methodParamNames[i];
+                            Type type = parameter.getParameterizedType();
+                            if (isAnnParam(parameter)) {
+                                objects[i] = getAnnParam(request, parameter, paramName);
+                            }
+                            if (isBasicType(type)) {
+                                List<String> value = (List<String>) request.getParameter(paramName);
+                                if (null == value) {
+                                    value = (List<String>) request.getPathParam(paramName);
                                 }
-                                if (isBasicType(type)) {
-                                    List<String> value = (List<String>) request.getParameter(paramName);
-                                    if (null == value) {
-                                        value = (List<String>) request.getPathParam(paramName);
-                                    }
-                                    if (value.isEmpty()) {
-                                        objects[i] = null;
-                                    } else {
-                                        objects[i] = value.get(0);
-                                    }
-                                }
-                                if (isObjectType(type)) {
-                                    objects[i] = getObjectType(type, webContent);
+                                if (value.isEmpty()) {
+                                    objects[i] = null;
+                                } else {
+                                    objects[i] = value.get(0);
                                 }
                             }
-                            Object invoke = method.invoke(ael.getIocPlugin().getBean(route.getClassType()), objects);
+                            if (isObjectType(type)) {
+                                objects[i] = getObjectType(type, webContent);
+                            }
+                        }
+                        Object invoke = method.invoke(ael.getIocPlugin().getBean(route.getClassType()), objects);
 
-                            ResponseBody responseBody = method.getAnnotation(ResponseBody.class);
-                            if (null == responseBody) {
-                                // 判断是否有返回值
-                                if (null == invoke) {
-                                    // 只返回响应头
-                                    response.write(new EmptyBody());
-                                } else {
-                                    if (invoke instanceof String) {
-                                        response.html(invoke.toString());
-                                    } else {
-                                        throw new RuntimeException("不确定的返回值");
-                                    }
-                                }
+                        ResponseBody responseBody = method.getAnnotation(ResponseBody.class);
+                        if (null == responseBody) {
+                            // 判断是否有返回值
+                            if (null == invoke) {
+                                // 只返回响应头
+                                response.write(new EmptyBody());
                             } else {
                                 if (invoke instanceof String) {
-                                    response.json(invoke.toString());
+                                    response.html(invoke.toString());
                                 } else {
-                                    response.json(JSONObject.toJSONString(invoke));
+                                    throw new RuntimeException("不确定的返回值");
                                 }
                             }
                         } else {
-                            response.text(" No route type " + route.getRouteType());
+                            if (invoke instanceof String) {
+                                response.json(invoke.toString());
+                            } else {
+                                response.json(JSONObject.toJSONString(invoke));
+                            }
                         }
                     } else {
                         response.setStatus(500);
-                        response.text(" No Mapping " + uri);
+                        throw new NoRouteTypeException(" No Mapping " + uri);
                     }
+                } else {
+                    response.setStatus(500);
+                    throw new NoMappingException(" No Mapping " + uri);
                 }
             }
-        } catch (Exception e) {
-            response.setStatus(500);
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            response.json(sw.toString());
         }
         if (SHOW_URL) {
             log.info(webContent.getResponse().getStatus() + "\t" + uri);

@@ -38,6 +38,9 @@ import java.util.Map;
  */
 public class AopPlugin {
 
+    /**
+     * 每个线程中都会存放一个WebContent
+     */
     public static final ThreadLocal<WebContent> WEB_CONTENT_THREAD_LOCAL = new ThreadLocal<>();
 
     public static final Class<AfterEnhance> after = AfterEnhance.class;

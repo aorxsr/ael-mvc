@@ -1,7 +1,6 @@
 package org.ael;
 
 import org.ael.c.annotation.*;
-import org.ael.dao.UserDao;
 import org.ael.http.MultiPartFile;
 import org.ael.http.WebContent;
 import org.ael.ioc.core.annotation.Injection;
@@ -29,15 +28,11 @@ public class HelloController {
     @Injection
     private TestBean testBean;
 
-    @Injection
-    private UserDao userDao;
-
     @ResponseBody
     @GetMapping(value = "/helloWord")
     public String helloWord() {
 //        testBean.testConsole();
-        userDao.q();
-        return "helloWord";
+        return "hell+oWord";
     }
 
     @ResponseBody

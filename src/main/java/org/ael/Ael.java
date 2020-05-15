@@ -30,6 +30,7 @@ import org.ael.route.hook.HookHandler;
 import org.ael.server.Server;
 import org.ael.server.netty.InitialHandler;
 import org.ael.server.netty.NettyServer;
+import org.ael.server.netty.exception.ExecuteException;
 import org.ael.template.AelTemplate;
 import org.ael.template.give.DefaultTemplate;
 
@@ -69,6 +70,8 @@ public class Ael {
     private FunctionRouteHandler functionRouteHandler = new FunctionRouteHandler();
 
     private SqlFactoryBuilder sqlFactoryBuilder = new SqlFactoryBuilder();
+
+    private ExecuteException executeException = new ExecuteException();
 
     public Ael start() {
         server.start(this);

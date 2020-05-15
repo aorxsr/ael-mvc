@@ -3,7 +3,10 @@ package org.ael;
 import com.alibaba.fastjson.JSONObject;
 import lombok.Builder;
 import lombok.Data;
+import org.ael.route.exception.NoMappingException;
 import org.ael.route.function.FunctionRouteHandler;
+import org.ael.server.netty.exception.ExcInfo;
+import org.ael.server.netty.exception.ExecuteException;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -19,6 +22,9 @@ public class TEst {
         FunctionRouteHandler functionRouteHandler = ael.getFunctionRouteHandler();
 
         functionRouteHandler.getRoute("/", webContent -> webContent.getResponse().json(JSONObject.toJSONString(Money.builder().zjq(100).zqq(50).build())));
+
+        ExecuteException executeException = ael.getExecuteException();
+        executeException.addException(NoMappingException.class, new ExcInfo("org.ael.exception.Exceptions", "noMapping"));
 
         ael.start();
 
