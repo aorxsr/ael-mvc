@@ -23,19 +23,16 @@
         <ael-ioc.version>0.1.0</ael-ioc.version>
         <!-- cglib -->
         <cglib.version>3.1</cglib.version>
+
+        <ael-ioc.version>0.1.0</ael-ioc.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.ael</groupId>
-            <artifactId>ael-ioc</artifactId>
-            <version>0.1.0</version>
-        </dependency>
-        <!--<dependency>
             <groupId>com.github.aorxsr</groupId>
             <artifactId>ael-ioc</artifactId>
             <version>${ael-ioc.version}</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -85,18 +82,6 @@
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>rdc-releases</id>
-            <url>https://repo.rdc.aliyun.com/repository/75268-release-LGFF5j/</url>
-        </repository>
-        <snapshotRepository>
-            <id>rdc-snapshots</id>
-            <url>https://repo.rdc.aliyun.com/repository/75268-snapshot-Kk4zBT/</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <build>
         <plugins>
             <plugin>
