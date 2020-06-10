@@ -47,6 +47,7 @@ public class IocPlugin {
         ioc.addBeanClss(Service.class);
         ioc.addBeanClss(Controller.class);
         ioc.addBeanClss(Dao.class);
+        ioc.addBeanClss(Compent.class);
         ioc.init(ael.getScanClass());
 
         this.environment = ael.getEnvironment();
