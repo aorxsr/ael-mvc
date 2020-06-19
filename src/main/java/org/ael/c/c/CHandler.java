@@ -15,6 +15,7 @@
 package org.ael.c.c;
 
 import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.ael.Ael;
 import org.ael.c.annotation.Controller;
 import org.ael.c.annotation.GetMapping;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class CHandler {
 
     /**
