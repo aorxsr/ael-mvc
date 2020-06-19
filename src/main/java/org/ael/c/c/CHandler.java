@@ -72,13 +72,20 @@ public class CHandler {
                         if (null == requestMapping) {
                             continue;
                         } else {
+
                             buildRoute(controllerUrl, requestMapping.value(), clazz, method, requestMapping.contentType(), HttpMethodConstant.ALL_UPPER);
                         }
                     } else {
                         buildRoute(controllerUrl, postMethod.value(), clazz, method, postMethod.contentType(), HttpMethodConstant.POST_UPPER);
                     }
                 } else {
-                    buildRoute(controllerUrl, getMethod.value(), clazz, method, getMethod.contentType(), HttpMethodConstant.GET_UPPER);
+                    // get方法
+                    String[] value = getMethod.value();
+                    for (String url : value) {
+                        if (StringUtils.isNotEmpty(url)) {
+                            buildRoute(controllerUrl, url, clazz, method, getMethod.contentType(), HttpMethodConstant.GET_UPPER);
+                        }
+                    }
                 }
             }
         }
