@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GetMapping {
 
-	String value() default "";
+	String value()[] default {};
 
 	String contentType() default "text/html";
 

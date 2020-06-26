@@ -28,7 +28,7 @@ public class DefaultTemplate implements AelTemplate {
     public WebContent render(ModelAndView modelAndView, WebContent webContent) {
         String view = modelAndView.getView();
         InputStream resourceAsStream = StreamUtils.getClassPathFile(view);
-        if (null == resourceAsStream) {
+        if (!new File(view).exists() || null == resourceAsStream) {
             throw new ViewNotFoundException(view + " view not found ... ");
         } else {
             try {

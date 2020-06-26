@@ -15,6 +15,7 @@
 package org.ael.c.c;
 
 import io.netty.util.internal.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.ael.Ael;
 import org.ael.c.annotation.Controller;
 import org.ael.c.annotation.GetMapping;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 public class CHandler {
 
     /**
@@ -72,13 +74,20 @@ public class CHandler {
                         if (null == requestMapping) {
                             continue;
                         } else {
+
                             buildRoute(controllerUrl, requestMapping.value(), clazz, method, requestMapping.contentType(), HttpMethodConstant.ALL_UPPER);
                         }
                     } else {
                         buildRoute(controllerUrl, postMethod.value(), clazz, method, postMethod.contentType(), HttpMethodConstant.POST_UPPER);
                     }
                 } else {
-                    buildRoute(controllerUrl, getMethod.value(), clazz, method, getMethod.contentType(), HttpMethodConstant.GET_UPPER);
+                    // get方法
+                    String[] value = getMethod.value();
+                    for (String url : value) {
+                        if (StringUtils.isNotEmpty(url)) {
+                            buildRoute(controllerUrl, url, clazz, method, getMethod.contentType(), HttpMethodConstant.GET_UPPER);
+                        }
+                    }
                 }
             }
         }
