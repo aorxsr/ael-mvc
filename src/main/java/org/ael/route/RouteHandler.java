@@ -10,6 +10,7 @@ import org.ael.commons.StringUtils;
 import org.ael.constant.EnvironmentConstant;
 import org.ael.constant.RouteTypeConstant;
 import org.ael.Ael;
+import org.ael.http.body.ViewBody;
 import org.ael.http.inter.Request;
 import org.ael.http.inter.Response;
 import org.ael.http.WebContent;
@@ -20,6 +21,7 @@ import org.ael.route.exception.NoRouteTypeException;
 import org.ael.route.function.FunctionRouteHandler;
 import org.ael.route.function.RouteFunctionHandler;
 import org.ael.route.hook.HookContext;
+import org.ael.template.ModelAndView;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -201,6 +203,8 @@ public class RouteHandler {
                             } else {
                                 if (invoke instanceof String) {
                                     response.html(invoke.toString());
+                                } else if (invoke instanceof ModelAndView) {
+                                    response.write(ViewBody.of((ModelAndView) invoke));
                                 } else {
                                     throw new RuntimeException("不确定的返回值");
                                 }

@@ -30,6 +30,7 @@ import org.ael.http.inter.Response;
 import org.ael.http.inter.Session;
 import org.ael.http.WebContent;
 import org.ael.constant.EnvironmentConstant;
+import org.ael.template.ModelAndView;
 import org.ael.template.give.ReadStaticResources;
 
 import java.io.IOException;
@@ -69,13 +70,20 @@ public class SimpleBodyWrite implements BodyWrite {
 
     @Override
     public FullHttpResponse onView(ViewBody body) throws IOException {
-        ReadStaticResources readStaticResources = WebContent.ael.getAelTemplate().readFileContext(body.getUrl());
-        DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()), readStaticResources.getByteBuf());
-        response.addHeader("Content-Length", readStaticResources.getSizeString());
+
+
+        FullHttpResponse defaultFullHttpResponse = WebContent.ael.getAelTemplate().renderResponse(body.getModelAndView(), this.webContent);
+
         appendResponseCookie(response.getNettyCookies(), defaultFullHttpResponse);
-        response.setContentType(HttpConstant.TEXT_HTML);
-        response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
-        defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
+//        response.setContentType(HttpConstant.TEXT_HTML);
+//        response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
+//        defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
+//
+//        ModelAndView modelAndView = body.getModelAndView();
+//
+//        WebContent.ael.getAelTemplate().render(modelAndView, this.webContent);
+
+
         return defaultFullHttpResponse;
     }
 
@@ -100,6 +108,11 @@ public class SimpleBodyWrite implements BodyWrite {
         response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
         defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
         return defaultFullHttpResponse;
+    }
+
+    @Override
+    public FullHttpResponse onStatics(ByteBuf byteBuf) {
+        return onByteBuf(byteBuf);
     }
 
     private void appendResponseCookie(Set<Cookie> cookieSet, FullHttpResponse response) {

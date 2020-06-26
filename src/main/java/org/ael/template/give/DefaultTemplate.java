@@ -2,6 +2,7 @@ package org.ael.template.give;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.FullHttpResponse;
 import org.ael.Ael;
 import org.ael.Environment;
 import org.ael.commons.StreamUtils;
@@ -52,6 +53,11 @@ public class DefaultTemplate implements AelTemplate {
             }
             return webContent;
         }
+    }
+
+    @Override
+    public FullHttpResponse renderResponse(ModelAndView modelAndView, WebContent webContent) throws ViewNotFoundException {
+        return null;
     }
 
     private static String PREFIX = "";

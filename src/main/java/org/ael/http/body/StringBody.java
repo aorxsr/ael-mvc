@@ -2,6 +2,7 @@ package org.ael.http.body;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.FullHttpResponse;
+import lombok.Getter;
 
 import java.nio.charset.StandardCharsets;
 
@@ -11,6 +12,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class StringBody implements Body {
 
+	@Getter
 	private final byte[] bytes;
 
 	public StringBody(final String content) {

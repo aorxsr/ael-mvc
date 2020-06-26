@@ -16,6 +16,7 @@ package org.ael.http.body;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import lombok.Getter;
+import org.ael.template.ModelAndView;
 
 import java.io.IOException;
 
@@ -25,18 +26,28 @@ import java.io.IOException;
  */
 public class ViewBody implements Body {
 
-	@Getter
-	private String url;
+    @Getter
+    private String url;
+    @Getter
+    private ModelAndView modelAndView;
 
-	public static ViewBody of(String htmlUrl) {
-		ViewBody viewBody = new ViewBody();
-		viewBody.url = htmlUrl;
-		return viewBody;
-	}
+    public static ViewBody of(String htmlUrl) {
+        ViewBody viewBody = new ViewBody();
+        viewBody.url = htmlUrl;
+        viewBody.modelAndView = new ModelAndView(htmlUrl);
+        return viewBody;
+    }
 
-	@Override
-	public FullHttpResponse body(BodyWrite write) throws IOException {
-		return write.onView(this);
-	}
+    public static ViewBody of(ModelAndView modelAndView) {
+        ViewBody viewBody = new ViewBody();
+        viewBody.url = modelAndView.getView();
+        viewBody.modelAndView = modelAndView;
+        return viewBody;
+    }
+
+    @Override
+    public FullHttpResponse body(BodyWrite write) throws IOException {
+        return write.onView(this);
+    }
 
 }

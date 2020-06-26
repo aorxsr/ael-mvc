@@ -17,4 +17,6 @@ public interface BodyWrite {
 
     FullHttpResponse onByteBuf(ByteBuf byteBuf);
 
+    FullHttpResponse onStatics(ByteBuf byteBuf);
+
 }

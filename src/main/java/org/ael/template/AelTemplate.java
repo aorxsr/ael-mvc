@@ -1,5 +1,6 @@
 package org.ael.template;
 
+import io.netty.handler.codec.http.FullHttpResponse;
 import org.ael.Ael;
 import org.ael.exception.ViewNotFoundException;
 import org.ael.http.WebContent;
@@ -20,6 +21,14 @@ public interface AelTemplate {
 	 * @return
 	 */
 	WebContent render(ModelAndView modelAndView, WebContent webContent) throws ViewNotFoundException;
+
+	/**
+	 * 模板实现接口
+	 *
+	 * @param modelAndView
+	 * @return
+	 */
+	FullHttpResponse renderResponse(ModelAndView modelAndView, WebContent webContent) throws ViewNotFoundException;
 
 	/**
 	 * 初始化
