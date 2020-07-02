@@ -64,7 +64,7 @@ public interface Response {
 	}
 
 	default void html(String htmlUrl) {
-		setContentType(HttpConstant.APPLICATION_JSON);
+		setContentType(HttpConstant.TEXT_HTML);
 		write(ViewBody.of(htmlUrl));
 	}
 

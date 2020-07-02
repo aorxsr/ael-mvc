@@ -24,6 +24,9 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import lombok.extern.slf4j.Slf4j;
+import org.ael.commons.StringUtils;
+import org.ael.constant.ContentType;
 import org.ael.constant.HttpConstant;
 import org.ael.http.inter.Request;
 import org.ael.http.inter.Response;
@@ -43,6 +46,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
  * @Author: aorxsr
  * @Date: 2020/1/29
  */
+@Slf4j
 public class SimpleBodyWrite implements BodyWrite {
 
     private WebContent webContent;
@@ -71,24 +75,24 @@ public class SimpleBodyWrite implements BodyWrite {
     @Override
     public FullHttpResponse onView(ViewBody body) throws IOException {
 
+        log.info("onView.");
 
         FullHttpResponse defaultFullHttpResponse = WebContent.ael.getAelTemplate().renderResponse(body.getModelAndView(), this.webContent);
-
         appendResponseCookie(response.getNettyCookies(), defaultFullHttpResponse);
-//        response.setContentType(HttpConstant.TEXT_HTML);
-//        response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
-//        defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
-//
-//        ModelAndView modelAndView = body.getModelAndView();
-//
-//        WebContent.ael.getAelTemplate().render(modelAndView, this.webContent);
+        if (StringUtils.isEmpty(response.getContentType())) {
+            response.setContentType(HttpConstant.TEXT_HTML);
+        }
 
-
+        response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
+        defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
         return defaultFullHttpResponse;
     }
 
     @Override
     public FullHttpResponse onByteBuf(Object byteBuf) {
+
+        log.info("onByteBuf.");
+
         DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()));
         response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
         ChannelHandlerContext ctx = webContent.getCtx();
@@ -103,6 +107,9 @@ public class SimpleBodyWrite implements BodyWrite {
 
     @Override
     public FullHttpResponse onByteBuf(ByteBuf byteBuf) {
+
+        log.info("onByteBuf.byteBuf");
+
         DefaultFullHttpResponse defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.valueOf(response.getStatus()), byteBuf);
         appendResponseCookie(response.getNettyCookies(), defaultFullHttpResponse);
         response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
@@ -112,6 +119,7 @@ public class SimpleBodyWrite implements BodyWrite {
 
     @Override
     public FullHttpResponse onStatics(ByteBuf byteBuf) {
+        log.info("onStatics.");
         return onByteBuf(byteBuf);
     }
 
