@@ -3,6 +3,7 @@ package org.ael.route;
 import com.alibaba.fastjson.JSONObject;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.CharsetUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.ael.c.annotation.*;
 import org.ael.c.c.CHandler;
@@ -15,7 +16,10 @@ import org.ael.http.inter.Request;
 import org.ael.http.inter.Response;
 import org.ael.http.WebContent;
 import org.ael.http.body.EmptyBody;
+import org.ael.ioc.core.BeanInfo;
 import org.ael.route.asm.ASMUtils;
+import org.ael.route.custom.HandlerBean;
+import org.ael.route.custom.UrlHandler;
 import org.ael.route.exception.NoMappingException;
 import org.ael.route.exception.NoRouteTypeException;
 import org.ael.route.function.FunctionRouteHandler;
@@ -30,6 +34,7 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ael.plugin.aop.AopPlugin.WEB_CONTENT_THREAD_LOCAL;
@@ -110,6 +115,7 @@ public class RouteHandler {
                 putRegexAndRoute(route.getPath(), rrMap.get(httpMethod), httpMethod, route);
             }
             routeHandlers.forEach((k, v) -> log.info(k));
+            // 进行URL拦截.
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InstantiationException e) {
@@ -145,6 +151,8 @@ public class RouteHandler {
         }
     }
 
+
+
     public WebContent executeHandler(WebContent webContent) throws InvocationTargetException, IllegalAccessException, IOException, NoMappingException, NoRouteTypeException {
         WEB_CONTENT_THREAD_LOCAL.set(webContent);
 
@@ -159,6 +167,19 @@ public class RouteHandler {
             if (isStatics(uri)) {
                 webContent = WebContent.ael.getStaticsResourcesHandler().rander(webContent);
             } else {
+                // 只拦截请求到方法的，不拦截请求资源的
+                Set<Map.Entry<Pattern, HandlerBean>> entries = this.urlHandler.entrySet();
+                for (Map.Entry<Pattern, HandlerBean> entry : entries) {
+                    Pattern key = entry.getKey();
+                    Matcher matcher = key.matcher(uri);
+                    if (matcher.matches()) {
+                        // 实现.
+                        HandlerBean value = entry.getValue();
+                        Method method = value.getMethod();
+                        method.invoke(value.getObject(), webContent);
+                    }
+                }
+
                 Integer atomInt = getAtomInt(request.getMethod(), uri);
                 if (null != atomInt) {
                     Route route = routeMap.get(atomInt);
@@ -331,4 +352,43 @@ public class RouteHandler {
         return false;
     }
 
+    private Map<Pattern, HandlerBean> urlHandler = new ConcurrentHashMap<>(16);
+
+    /**
+     * URL拦截设置
+     */
+    @SneakyThrows
+    public void initUrlHandler() {
+        // 先获取有拦截注解的注解
+        Class<UrlHandler> urlHandlerClass = UrlHandler.class;
+        for (Class<?> scanClass : ael.getScanClass()) {
+            Method[] declaredMethods = scanClass.getDeclaredMethods();
+            for (Method method : declaredMethods) {
+                if (method.isAnnotationPresent(urlHandlerClass)) {
+                    UrlHandler urlHandler = method.getDeclaredAnnotation(urlHandlerClass);
+                    String[] values = urlHandler.value();
+                    for (String value : values) {
+                        if (StringUtils.isNotEmpty(value)) {
+                            HandlerBean handlerBean = new HandlerBean();
+                            Object obj = scanClass.newInstance();
+                            handlerBean.setObject(obj);
+                            handlerBean.setAClass(scanClass);
+                            handlerBean.setUrl(value);
+                            handlerBean.setMethod(method);
+
+                            if (this.urlHandler.containsKey(value)) {
+                                throw new Exception("重复存在URL拦截器的url。");
+                            }
+
+                            String pattern = urlToPattern(value);
+                            Pattern compile = Pattern.compile(pattern);
+                            this.urlHandler.put(compile, handlerBean);
+                        } else {
+                            log.warn(scanClass.getName() + "." + method.getName() + " 没写拦截的URL");
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

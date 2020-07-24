@@ -77,13 +77,13 @@ public class NettyServer implements Server {
         boss = new NioEventLoopGroup();
         work = new NioEventLoopGroup();
 
+
         scheduleEventLoop = new DefaultEventLoop();
         scheduleEventLoop.scheduleAtFixedRate(new SessionClearHandler(ael.getSessionHandler().getSessionManager()), 1000, 1000, TimeUnit.MILLISECONDS);
 
         serverBootstrap = new ServerBootstrap();
         // 初始化配置
         serverBootstrap.group(work, boss);
-
         // 扫描包下面所有的类
         List<String> list = this.ael.getEnvironment().getList(EnvironmentConstant.SCAN_PACKAGE, new ArrayList<String>());
 
@@ -93,6 +93,7 @@ public class NettyServer implements Server {
 
         // routeHandler init
         ael.getRouteHandler().init();
+        ael.getRouteHandler().initUrlHandler();
 
         // function route register
         ael.getFunctionRouteHandler().registerFunctionRoute(ael.getRouteHandler());

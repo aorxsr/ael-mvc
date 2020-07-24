@@ -37,13 +37,16 @@ public class StaticsResourcesHandler {
         String uri = request.getUri();
 
         // 匹配开始
-
-        for (String resourcesHanler : resourcesHandlers) {
-            if (uri.startsWith(resourcesHanler)) {
-                if (resources.containsKey(resourcesHanler)) {
-                    uri = uri.replace(resourcesHanler, resources.get(resourcesHanler));
+        // 添加参数, 表示不用循环这个
+        Object isVerify = request.getParameter("isVerify");
+        if (null == isVerify) {
+            for (String resourcesHanler : resourcesHandlers) {
+                if (uri.startsWith(resourcesHanler)) {
+                    if (resources.containsKey(resourcesHanler)) {
+                        uri = uri.replace(resourcesHanler, resources.get(resourcesHanler));
+                    }
+                    break;
                 }
-                break;
             }
         }
 

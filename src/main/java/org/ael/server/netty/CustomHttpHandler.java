@@ -55,7 +55,7 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
                 } else {
                     e.getCause().printStackTrace(printWriter);
                 }
-                response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(writer.toString().getBytes()));
+                response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(writer.toString().getBytes("UTF-8")));
             }
         }
         AopPlugin.WEB_CONTENT_THREAD_LOCAL.remove();
