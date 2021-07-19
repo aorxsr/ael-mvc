@@ -79,7 +79,6 @@ public class SimpleBodyWrite implements BodyWrite {
         if (StringUtils.isEmpty(response.getContentType())) {
             response.setContentType(HttpConstant.TEXT_HTML);
         }
-
         response.getHeaders().forEach((k, v) -> defaultFullHttpResponse.headers().set(k, v));
         defaultFullHttpResponse.headers().set(HttpConstant.DATE, new Date());
         return defaultFullHttpResponse;

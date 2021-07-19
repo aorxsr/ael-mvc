@@ -2,7 +2,10 @@ package org.ael.template.give;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import org.ael.Ael;
 import org.ael.Environment;
 import org.ael.commons.StreamUtils;
@@ -15,6 +18,8 @@ import org.ael.template.AelTemplate;
 import org.ael.template.ModelAndView;
 
 import java.io.*;
+
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
  * default impl template
@@ -57,7 +62,18 @@ public class DefaultTemplate implements AelTemplate {
 
     @Override
     public FullHttpResponse renderResponse(ModelAndView modelAndView, WebContent webContent) throws ViewNotFoundException {
-        return null;
+        // 笑死了,竟然有人从这里访问,我操,我之前写的都没了,还得重新写
+        DefaultFullHttpResponse defaultFullHttpResponse = null;
+        try {
+            ReadStaticResources fileContext = readFileContext(modelAndView.getView());
+            ByteBuf byteBuf = fileContext.getByteBuf();
+            if (null != byteBuf) {
+                defaultFullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1,HttpResponseStatus.OK, byteBuf);
+            }
+        } catch (IOException e) {
+            throw new ViewNotFoundException(modelAndView.getView() + " view not found ... ");
+        }
+        return defaultFullHttpResponse;
     }
 
     private static String PREFIX = "";
