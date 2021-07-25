@@ -64,7 +64,7 @@ public class SimpleBodyWrite implements BodyWrite {
             if (request.isASESSION()) {
                 Cookie cookie = request.getCookie(WebContent.ael.getEnvironment().getString(EnvironmentConstant.SESSION_KEY, EnvironmentConstant.DEFAULT_SESSION_KEY));
                 if (null == cookie) {
-                    response.setCookie(new DefaultCookie(EnvironmentConstant.DEFAULT_SESSION_KEY, session.getId()));
+                    response.setCookie(new DefaultCookie(WebContent.ael.getEnvironment().getString(EnvironmentConstant.SESSION_KEY, EnvironmentConstant.DEFAULT_SESSION_KEY), session.getId()));
                 } else {
                     response.setCookie(cookie);
                 }

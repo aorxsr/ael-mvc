@@ -40,7 +40,6 @@ public interface EnvironmentConstant {
 	 */
 	String TEMPLATE_SUFFIX = "org.ael.template.suffix";
 
-
 	/*******************************************************/
 
 	/**
