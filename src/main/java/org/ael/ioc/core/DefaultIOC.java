@@ -16,16 +16,21 @@ public class DefaultIOC implements IOC {
 
     private Map<String, BeanInfo> iocs = new ConcurrentHashMap<>(16);
 
-    private Set<Class> beanClss = new HashSet<>(8);
+    private Set<Class> beanClass = new HashSet<>(8);
 
-    public void addBeanClss(Class<? extends Annotation> cls) {
-        this.beanClss.add(cls);
+    public void addBeanClass(Class<? extends Annotation> cls) {
+        this.beanClass.add(cls);
+    }
+
+    public void addBeanClasses(Class<? extends Annotation>... classes) {
+        for (Class<? extends Annotation> aClass : classes)
+            this.beanClass.add(aClass);
     }
 
     public void init(Set<Class<?>> clss) {
-        if (beanClss.isEmpty()) return;
+        if (beanClass.isEmpty()) return;
         for (Class<?> cls : clss) {
-            for (Class aClass : beanClss) {
+            for (Class aClass : beanClass) {
                 if (cls.isAnnotationPresent(aClass)) {
                     iocs.put(cls.getName(), BeanInfo.builder().cls(cls).build());
                 }
@@ -77,12 +82,10 @@ public class DefaultIOC implements IOC {
                     e.printStackTrace();
                 }
                 return object;
-            } else {
-                return object;
             }
-        } else {
-            return null;
+            return object;
         }
+        return null;
     }
 
 }

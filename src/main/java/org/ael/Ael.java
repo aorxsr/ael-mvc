@@ -34,6 +34,7 @@ import org.ael.server.netty.exception.ExecuteException;
 import org.ael.template.AelTemplate;
 import org.ael.template.give.DefaultTemplate;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -98,11 +99,13 @@ public class Ael {
         return this;
     }
 
-    public Ael removeResourcesMapping(String resourcesHandler) {
-        if (staticsResourcesHandler.getResources().containsKey(resourcesHandler)) {
-            staticsResourcesHandler.getResources().remove(resourcesHandler);
-            staticsResourcesHandler.getResourcesHandlers().remove(resourcesHandler);
-        }
+    /**
+     * 手动增加注解
+     * @param cls
+     * @return
+     */
+    public Ael addAnnotationScanPackage(Class<? extends Annotation> cls) {
+        environment.getList(EnvironmentConstant.IOCKeyName, new ArrayList()).add(cls);
         return this;
     }
 

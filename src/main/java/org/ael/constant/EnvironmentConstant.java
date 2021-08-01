@@ -62,4 +62,12 @@ public interface EnvironmentConstant {
 	 */
 	String REQUEST_URL_SHOW = "org.ael.request.url-show";
 
+
+	/*******************************************************/
+
+	/**
+	 * 环境中的IOCList名称
+	 */
+	String IOCKeyName = "AelIocList";
+
 }

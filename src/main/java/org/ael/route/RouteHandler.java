@@ -154,6 +154,7 @@ public class RouteHandler {
 
 
     public WebContent executeHandler(WebContent webContent) throws InvocationTargetException, IllegalAccessException, IOException, NoMappingException, NoRouteTypeException {
+        // 忘了为啥这里要弄这个
         WEB_CONTENT_THREAD_LOCAL.set(webContent);
 
         Request request = webContent.getRequest();
@@ -243,7 +244,7 @@ public class RouteHandler {
                     }
                 } else {
                     response.setStatus(500);
-                    throw new NoMappingException(" No Mapping " + uri);
+                    throw new NoMappingException(" No Hook " + uri);
                 }
             }
         }

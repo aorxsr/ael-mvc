@@ -8,6 +8,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.ael.Ael;
 import org.ael.http.HttpRequest;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -42,7 +44,6 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
             WebContent execute = execute(request, ctx);
             response = execute.getResponse().getBody().body(new SimpleBodyWrite(execute));
         } catch (Exception e) {
-            // 这里调用相应的方法， 否则就执行下面的东西
             ExecuteException executeException = WebContent.ael.getExecuteException();
             if (executeException.existenceExceptionType(e)) {
                 response = executeException.executeException(e, request);
@@ -55,7 +56,7 @@ public class CustomHttpHandler extends SimpleChannelInboundHandler<HttpRequest> 
                 } else {
                     e.getCause().printStackTrace(printWriter);
                 }
-                response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(writer.toString().getBytes("UTF-8")));
+                response = new DefaultFullHttpResponse(HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR, Unpooled.copiedBuffer(writer.toString().getBytes(CharsetUtil.UTF_8)));
             }
             e.printStackTrace();
         }

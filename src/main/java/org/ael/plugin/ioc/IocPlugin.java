@@ -39,17 +39,14 @@ import java.util.Map;
  */
 public class IocPlugin {
 
-    private final DefaultIOC ioc = new DefaultIOC();
+    private final DefaultIOC ioc = new DefaultIOC() {{
+        addBeanClasses(Bean.class, Service.class, Controller.class, Dao.class, Compent.class);
+    }};
+
     private Environment environment;
 
     public void initIoc(Ael ael) {
-        ioc.addBeanClss(Bean.class);
-        ioc.addBeanClss(Service.class);
-        ioc.addBeanClss(Controller.class);
-        ioc.addBeanClss(Dao.class);
-        ioc.addBeanClss(Compent.class);
         ioc.init(ael.getScanClass());
-
         this.environment = ael.getEnvironment();
     }
 
@@ -75,7 +72,6 @@ public class IocPlugin {
                 WebContent webContent = AopPlugin.WEB_CONTENT_THREAD_LOCAL.get();
                 Class<?> fieldType = field.getType();
                 field.setAccessible(true);
-                // 判断是否是WebContent或者其他的东西
                 if (fieldType == WebContent.class
                         || fieldType == Request.class
                         || fieldType == Response.class) {

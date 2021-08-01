@@ -14,14 +14,13 @@ public class SimpleLoggerFactory implements ILoggerFactory {
     }
 
     public Logger getLogger(String name) {
-        System.out.println("--------getLogger\t" + name);
-        Logger logger = (Logger)this.logs.get(name);
+        Logger logger = this.logs.get(name);
         if (null != logger) {
             return logger;
         } else {
             Logger newLogger = new SimpleLogger(name);
-            Logger old = (Logger)this.logs.putIfAbsent(name, newLogger);
-            return (Logger)(null == old ? newLogger : old);
+            Logger old = this.logs.putIfAbsent(name, newLogger);
+            return (null == old ? newLogger : old);
         }
     }
 }
