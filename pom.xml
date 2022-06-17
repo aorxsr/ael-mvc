@@ -18,7 +18,7 @@
         <hutool.version>4.5.8</hutool.version>
         <asm.version>5.1</asm.version>
         <!-- JSON解析器暂时使用FastJson,后续自己试下一个. -->
-        <fastjson.version>1.2.62</fastjson.version>
+        <fastjson.version>1.2.83</fastjson.version>
 
         <ael-ioc.version>0.1.0</ael-ioc.version>
         <!-- cglib -->
